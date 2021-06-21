@@ -81,27 +81,6 @@ func (u *ui) setError(err string) {
 	u.err.Refresh()
 }
 
-func getScreenSize() (uint16, uint16) {
-	conn, err := xgbutil.NewConn()
-	if err != nil {
-		log.Println("ScreenSize X connect error", err)
-		return 1280, 720
-	}
-	err = randr.Init(conn.Conn())
-	if err != nil {
-		log.Println("ScreenSize X RandR error", err)
-		return 1280, 720
-	}
-
-	root := xproto.Setup(conn.Conn()).DefaultScreen(conn.Conn()).Root
-	resources, _ := randr.GetScreenResources(conn.Conn(), root).Reply()
-	output := resources.Outputs[0]
-	outputInfo, _ := randr.GetOutputInfo(conn.Conn(), output, 0).Reply()
-
-	crtcInfo, _ := randr.GetCrtcInfo(conn.Conn(), outputInfo.Crtc, 0).Reply()
-	return crtcInfo.Width, crtcInfo.Height
-}
-
 func (u *ui) loadUI() {
 	u.user = widget.NewEntry()
 	u.pass = widget.NewPasswordEntry()
@@ -135,4 +114,25 @@ func (u *ui) loadUI() {
 		))),
 	))
 	u.win.Canvas().Focus(u.user)
+}
+
+func getScreenSize() (uint16, uint16) {
+	conn, err := xgbutil.NewConn()
+	if err != nil {
+		log.Println("ScreenSize X connect error", err)
+		return 1280, 720
+	}
+	err = randr.Init(conn.Conn())
+	if err != nil {
+		log.Println("ScreenSize X RandR error", err)
+		return 1280, 720
+	}
+
+	root := xproto.Setup(conn.Conn()).DefaultScreen(conn.Conn()).Root
+	resources, _ := randr.GetScreenResources(conn.Conn(), root).Reply()
+	output := resources.Outputs[0]
+	outputInfo, _ := randr.GetOutputInfo(conn.Conn(), output, 0).Reply()
+
+	crtcInfo, _ := randr.GetCrtcInfo(conn.Conn(), outputInfo.Crtc, 0).Reply()
+	return crtcInfo.Width, crtcInfo.Height
 }
