@@ -1,0 +1,10 @@
+[Unit]
+Description=Fin Login Manager
+After=systemd-user-sessions.service
+
+[Service]
+ExecStart=fin
+Restart=always
+
+[Install]
+Alias=display-manager.service
