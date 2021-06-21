@@ -92,7 +92,7 @@ static void init_env(struct passwd *pw) {
     free(xauthority);
 }
 
-bool login(const char *username, const char *password, pid_t *child_pid) {
+bool login(const char *username, const char *password, const char *exec, pid_t *child_pid) {
     const char *data[2] = {username, password};
     struct pam_conv pam_conv = {
         conv, data
@@ -130,9 +130,7 @@ bool login(const char *username, const char *password, pid_t *child_pid) {
     *child_pid = fork();
     if (*child_pid == 0) {
         chdir(pw->pw_dir);
-        // We don't use ~/.xinitrc because we should already be in the users home directory
-        char *cmd = "exec /bin/bash --login .xinitrc";
-        execl("/usr/bin/su", "/usr/bin/su", username, pw->pw_shell, "-c", cmd, NULL);
+        execl("/usr/bin/su", "/usr/bin/su", username, pw->pw_shell, "-c", exec, NULL);
         printf("Failed to start window manager");
         exit(1);
     }

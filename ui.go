@@ -22,13 +22,15 @@ import (
 type ui struct {
 	win        fyne.Window
 	user, pass *widget.Entry
+	session    *widget.Select
 	err        *canvas.Text
 
 	hostname func() string
+	sessions []*session
 }
 
 func newUI(w fyne.Window, host func() string) *ui {
-	return &ui{win: w, hostname: host}
+	return &ui{win: w, hostname: host, sessions: loadSessions()}
 }
 
 func (u *ui) askShutdown() {
@@ -54,7 +56,7 @@ func (u *ui) doLogin() {
 	}
 
 	go func() {
-		pid, err := login(u.user.Text, u.pass.Text)
+		pid, err := login(u.user.Text, u.pass.Text, u.sessionExec())
 		if err != nil {
 			u.setError(err.Error())
 			return
@@ -88,12 +90,14 @@ func (u *ui) loadUI() {
 		u.win.Canvas().Focus(nil)
 		u.doLogin()
 	}
+	u.session = widget.NewSelect(u.sessionNames(), func(string) {})
 	u.err = canvas.NewText("", theme.ErrorColor())
 	u.err.Alignment = fyne.TextAlignCenter
 
 	f := widget.NewForm(
 		widget.NewFormItem("Username", u.user),
-		widget.NewFormItem("Password", u.pass))
+		widget.NewFormItem("Password", u.pass),
+		widget.NewFormItem("Session", u.session))
 	f.SubmitText = "Log In"
 	f.CancelText = "Shutdown"
 	f.OnCancel = u.askShutdown
@@ -114,6 +118,23 @@ func (u *ui) loadUI() {
 		))),
 	))
 	u.win.Canvas().Focus(u.user)
+}
+
+func (u *ui) sessionNames() []string {
+	var ret []string
+	for _, sess := range u.sessions {
+		ret = append(ret, sess.name)
+	}
+	return ret
+}
+
+func (u *ui) sessionExec() string {
+	for _, sess := range u.sessions {
+		if sess.name == u.session.Selected {
+			return sess.exec
+		}
+	}
+	return u.sessions[0].exec
 }
 
 func getScreenSize() (uint16, uint16) {
