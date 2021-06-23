@@ -1,9 +1,15 @@
 // The code in this file is from the excellent blog post https://www.gulshansingh.com/posts/how-to-write-a-display-manager/
 
 #include <security/pam_appl.h>
+#ifdef __FreeBSD__
+#include <security/openpam.h>
+#else
 #include <security/pam_misc.h>
+#endif
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <pwd.h>
 #include <paths.h>
 #include <unistd.h>
