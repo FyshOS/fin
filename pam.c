@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <pwd.h>
 #include <paths.h>
+#include <unistd.h>
 
 #define SERVICE_NAME "display_manager"
 

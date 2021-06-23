@@ -5,6 +5,7 @@ package main
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid);
 bool logout(void);
