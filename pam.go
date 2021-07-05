@@ -7,6 +7,7 @@ package main
 #include <stdlib.h>
 #include <unistd.h>
 
+char *homedir(const char *username);
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid);
 bool logout(void);
 */
@@ -14,6 +15,17 @@ import "C"
 import (
 	"errors"
 )
+
+// homedir gets the home directory for a username.
+// An error is returned if the lookup was not successful.
+func homedir(username string) (string, error) {
+	cName := C.CString(username)
+	cHome := C.homedir(cName)
+	if cHome == nil {
+		return "", errors.New("unable to look up homedir")
+	}
+	return C.GoString(cHome), nil
+}
 
 // login logs in the username with password and returns the pid of the login process
 // or an error if login failed

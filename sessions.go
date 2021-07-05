@@ -10,17 +10,17 @@ import (
 	"fyne.io/fyne/v2"
 )
 
+var xinitSession = &session{
+	name: ".xinitrc",
+	exec: "/bin/bash --login .xinitrc",
+}
+
 type session struct {
 	name, exec string
 }
 
 func loadSessions() []*session {
-	list := []*session{
-		{
-			name: ".xinitrc",
-			exec: "/bin/bash --login .xinitrc",
-		},
-	}
+	var list []*session
 	for _, dir := range lookupXdgDataDirs() {
 		sessionDir := filepath.Join(dir, "xsessions")
 		files, err := ioutil.ReadDir(sessionDir)

@@ -99,6 +99,14 @@ static void init_env(struct passwd *pw) {
     free(xauthority);
 }
 
+char *homedir(const char *username) {
+    struct passwd *pw = getpwnam(username);
+    if (pw == NULL) {
+        return NULL;
+    }
+    return pw->pw_dir;
+}
+
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid) {
     const char *data[2] = {username, password};
     struct pam_conv pam_conv = {

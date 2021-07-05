@@ -50,10 +50,6 @@ func (u *ui) doLogin() {
 		u.setError("Missing username or password")
 		return
 	}
-	if _, err := os.Stat(filepath.Join("/home", u.user.Text, ".xinitrc")); err != nil { // TODO get actual dir from pam!
-		u.setError("No .xinitrc file for " + u.user.Text)
-		return
-	}
 
 	go func() {
 		pid, err := login(u.user.Text, u.pass.Text, u.sessionExec())
@@ -85,6 +81,7 @@ func (u *ui) setError(err string) {
 
 func (u *ui) loadUI() {
 	u.user = widget.NewEntry()
+	u.user.OnChanged = u.updateForUsername
 	u.pass = widget.NewPasswordEntry()
 	u.pass.OnSubmitted = func(string) {
 		u.win.Canvas().Focus(nil)
@@ -135,6 +132,23 @@ func (u *ui) sessionExec() string {
 		}
 	}
 	return u.sessions[0].exec
+}
+
+func (u *ui) updateForUsername(user string) {
+	home, _ := homedir(user)
+	if _, err := os.Stat(filepath.Join(home, ".xinitrc")); err != nil {
+		if u.sessions[len(u.sessions)-1] == xinitSession {
+			u.sessions = u.sessions[:len(u.sessions)-1]
+			u.session.Options = u.sessionNames()
+			u.session.Refresh()
+		}
+	} else {
+		if u.sessions[len(u.sessions)-1] != xinitSession {
+			u.sessions = append(u.sessions, xinitSession)
+			u.session.Options = u.sessionNames()
+			u.session.Refresh()
+		}
+	}
 }
 
 func getScreenSize() (uint16, uint16) {
