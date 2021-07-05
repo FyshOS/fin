@@ -41,9 +41,9 @@ func main() {
 		_ = os.Setenv("DISPLAY", ":0")
 	}
 
-	a := app.New()
+	a := app.NewWithID("io.fyne.fin")
 	w := a.Driver().CreateWindow("Fin")
-	ui := newUI(w, hostname)
+	ui := newUI(w, a.Preferences(), hostname)
 	w.SetPadded(false)
 
 	if display == "" {

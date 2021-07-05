@@ -19,6 +19,11 @@ import (
 	"github.com/BurntSushi/xgbutil"
 )
 
+const (
+	prefSessionKey = "user.%s.session"
+	prefUserKey    = "default.user"
+)
+
 type ui struct {
 	win        fyne.Window
 	user, pass *widget.Entry
@@ -27,10 +32,11 @@ type ui struct {
 
 	hostname func() string
 	sessions []*session
+	pref     fyne.Preferences
 }
 
-func newUI(w fyne.Window, host func() string) *ui {
-	return &ui{win: w, hostname: host, sessions: loadSessions()}
+func newUI(w fyne.Window, p fyne.Preferences, host func() string) *ui {
+	return &ui{win: w, hostname: host, pref: p, sessions: loadSessions()}
 }
 
 func (u *ui) askShutdown() {
@@ -50,6 +56,8 @@ func (u *ui) doLogin() {
 		u.setError("Missing username or password")
 		return
 	}
+	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user.Text), u.session.Selected)
+	u.pref.SetString(prefUserKey, u.user.Text)
 
 	go func() {
 		pid, err := login(u.user.Text, u.pass.Text, u.sessionExec())
@@ -115,6 +123,9 @@ func (u *ui) loadUI() {
 		))),
 	))
 	u.win.Canvas().Focus(u.user)
+	u.user.SetText(u.pref.String(prefUserKey))
+	u.user.CursorColumn = len(u.user.Text)
+	u.user.Refresh()
 }
 
 func (u *ui) sessionNames() []string {
@@ -148,6 +159,11 @@ func (u *ui) updateForUsername(user string) {
 			u.session.Options = u.sessionNames()
 			u.session.Refresh()
 		}
+	}
+
+	last := u.pref.String(fmt.Sprintf(prefSessionKey, user))
+	if last != "" {
+		u.session.SetSelected(last)
 	}
 }
 
