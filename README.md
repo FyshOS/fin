@@ -1,9 +1,10 @@
 # Fin, the Fyne Login Manager
 
-This app is in it's very early stages and has only been tested with
-pam and systemd to log in users with a `.xinitrc` file.
+A minimal but good-looking login manager for Linux/Unix.
+The current boot scripts support only systemd.
 
-If that sounds like you then you can simply check out this repo and run:
+If you'd like to try out this project in it's early stages
+then you can simply check out this repo and run:
 
 ```shell
 $ make
