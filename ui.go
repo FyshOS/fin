@@ -78,6 +78,7 @@ func (u *ui) doLogin() {
 		u.win.Show()
 		_ = logout()
 		u.pass.SetText("")
+		u.win.Canvas().Focus(u.pass)
 		u.setError("")
 	}()
 }
@@ -122,10 +123,13 @@ func (u *ui) loadUI() {
 			widget.NewLabel(""),
 		))),
 	))
-	u.win.Canvas().Focus(u.user)
+
 	u.user.SetText(u.pref.String(prefUserKey))
-	u.user.CursorColumn = len(u.user.Text)
-	u.user.Refresh()
+	if len(u.user.Text) == 0 {
+		u.win.Canvas().Focus(u.user)
+	} else {
+		u.win.Canvas().Focus(u.pass)
+	}
 }
 
 func (u *ui) sessionNames() []string {
