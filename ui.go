@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -25,12 +27,13 @@ const (
 )
 
 type ui struct {
-	win        fyne.Window
-	user, pass *widget.Entry
-	session    *widget.Select
-	err        *canvas.Text
+	win     fyne.Window
+	pass    *widget.Entry
+	session *widget.Select
+	err     *canvas.Text
 
 	hostname func() string
+	user     string
 	sessions []*session
 	pref     fyne.Preferences
 }
@@ -52,15 +55,15 @@ func (u *ui) askShutdown() {
 }
 
 func (u *ui) doLogin() {
-	if u.user.Text == "" || u.pass.Text == "" {
+	if u.user == "" || u.pass.Text == "" {
 		u.setError("Missing username or password")
 		return
 	}
-	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user.Text), u.session.Selected)
-	u.pref.SetString(prefUserKey, u.user.Text)
+	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user), u.session.Selected)
+	u.pref.SetString(prefUserKey, u.user)
 
 	go func() {
-		pid, err := login(u.user.Text, u.pass.Text, u.sessionExec())
+		pid, err := login(u.user, u.pass.Text, u.sessionExec())
 		if err != nil {
 			u.setError(err.Error())
 			return
@@ -89,8 +92,6 @@ func (u *ui) setError(err string) {
 }
 
 func (u *ui) loadUI() {
-	u.user = widget.NewEntry()
-	u.user.OnChanged = u.updateForUsername
 	u.pass = widget.NewPasswordEntry()
 	u.pass.OnSubmitted = func(string) {
 		u.win.Canvas().Focus(nil)
@@ -100,10 +101,21 @@ func (u *ui) loadUI() {
 	u.err = canvas.NewText("", theme.ErrorColor())
 	u.err.Alignment = fyne.TextAlignCenter
 
-	f := widget.NewForm(
-		widget.NewFormItem("Username", u.user),
+	users := getUsers()
+	var formItems []*widget.FormItem
+	if len(users) == 0 {
+		user := widget.NewEntry()
+		user.OnChanged = func(user string) {
+			u.user = user
+		}
+
+		formItems = append(formItems, widget.NewFormItem("Username", user))
+	}
+
+	formItems = append(formItems,
 		widget.NewFormItem("Password", u.pass),
 		widget.NewFormItem("Session", u.session))
+	f := widget.NewForm(formItems...)
 	f.SubmitText = "Log In"
 	f.CancelText = "Shutdown"
 	f.OnCancel = u.askShutdown
@@ -113,21 +125,44 @@ func (u *ui) loadUI() {
 	r, g, b, _ := theme.BackgroundColor().RGBA()
 	box := canvas.NewRectangle(color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd})
 
+	var avatars []fyne.CanvasObject
+	for _, name := range users {
+		ava := newAvatar(name, func(user string) {
+			for _, a := range avatars {
+				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[0].(*canvas.Rectangle)
+				border.StrokeColor = theme.ShadowColor()
+				border.Refresh()
+			}
+			u.user = user
+			u.updateForUsername(user)
+			u.win.Canvas().Focus(u.pass)
+		})
+		avatars = append(avatars, ava)
+	}
+
 	u.win.SetContent(container.NewMax(bg,
 		container.NewCenter(container.NewMax(box, container.NewVBox(
 			widget.NewLabelWithStyle(fmt.Sprintf("Log in to %s", u.hostname()), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
 
 			container.NewMax(widget.NewLabel(""), u.err),
+			container.NewCenter(container.NewHBox(avatars...)),
 			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "), f),
 			widget.NewLabel(""),
 		))),
 	))
 
-	u.user.SetText(u.pref.String(prefUserKey))
-	if len(u.user.Text) == 0 {
-		u.win.Canvas().Focus(u.user)
-	} else {
+	matched := false
+	storedName := u.pref.String(prefUserKey)
+	for i, name := range getUsers() {
+		if name != storedName {
+			continue
+		}
+
+		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Button).Tapped(&fyne.PointEvent{})
+		matched = true
+	}
+	if matched {
 		u.win.Canvas().Focus(u.pass)
 	}
 }
@@ -190,4 +225,51 @@ func getScreenSize() (uint16, uint16) {
 
 	crtcInfo, _ := randr.GetCrtcInfo(conn.Conn(), outputInfo.Crtc, 0).Reply()
 	return crtcInfo.Width, crtcInfo.Height
+}
+
+func getUsers() []string {
+	data, err := ioutil.ReadFile("/etc/passwd")
+	if err != nil {
+		fyne.LogError("Failed to read password", err)
+		return []string{""}
+	}
+
+	var ret []string
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.Contains(line, "nologin") {
+			continue
+		}
+
+		fields := strings.Split(line, ":")
+		if len(fields) < 7 || fields[0] == "root" || fields[6][len(fields[6])-2:] != "sh" {
+			continue
+		}
+		ret = append(ret, fields[0])
+	}
+	return ret
+}
+
+func newAvatar(user string, f func(string)) fyne.CanvasObject {
+	ava := canvas.NewImageFromResource(theme.AccountIcon())
+	home, _ := homedir(user)
+	facePath := filepath.Join(home, ".face")
+	if _, err := os.Stat(facePath); err == nil {
+		ava = canvas.NewImageFromFile(facePath)
+	}
+	ava.SetMinSize(fyne.NewSize(120, 120))
+	border := canvas.NewRectangle(theme.InputBackgroundColor())
+	border.StrokeWidth = theme.InputBorderSize()
+	border.StrokeColor = theme.ShadowColor()
+
+	tapper := widget.NewButton("", func() {
+		f(user)
+		border.StrokeColor = theme.PrimaryColor()
+		border.Refresh()
+	})
+	tapper.Importance = widget.LowImportance
+
+	img := container.NewMax(border, tapper, ava)
+	return container.NewVBox(img,
+		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+	)
 }
