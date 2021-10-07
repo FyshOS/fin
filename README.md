@@ -23,7 +23,7 @@ That should be all you need
 
 # Screenshot
 
-The first version of fin looks like this:
+The current version of fin looks like this:
 
 ![](img/screenshot.png)
 
@@ -36,3 +36,4 @@ Xephyr window (we provided `make embed` to help).
 Once you are ready to test as your display manager replacement
 you should execute `make && sudo make install` and restart the
 `fin` service.
+
