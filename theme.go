@@ -4,5 +4,5 @@ package main
 
 var (
 	// background is the default background image
-	background = resourceSwedishPineJpg
+	background = resourcebackgroundJpg
 )
