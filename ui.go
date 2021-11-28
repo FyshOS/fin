@@ -13,7 +13,6 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"github.com/BurntSushi/xgb/randr"
@@ -43,15 +42,31 @@ func newUI(w fyne.Window, p fyne.Preferences, host func() string) *ui {
 }
 
 func (u *ui) askShutdown() {
-	dialog.ShowConfirm("Shutdown", "Are you sure you want to shut down?",
-		func(ok bool) {
-			if !ok {
-				return
-			}
-
-			cmd := exec.Command("shutdown", "-h", "now")
-			_ = cmd.Start()
-		}, u.win)
+	var pup *widget.PopUp
+	shutdown := &widget.Button{Text: "Power Off", Importance: widget.HighImportance, OnTapped: func() {
+		cmd := exec.Command("shutdown", "-h", "now")
+		_ = cmd.Start()
+	}}
+	reboot := &widget.Button{Text: "Reboot", OnTapped: func() {
+		cmd := exec.Command("shutdown", "-r", "now")
+		_ = cmd.Start()
+	}}
+	cancel := &widget.Button{Text: "Cancel", OnTapped: func() {
+		pup.Hide()
+	}}
+	spacer := canvas.NewRectangle(color.Transparent)
+	spacer.SetMinSize(fyne.NewSize(0, 10))
+	buttons := container.NewPadded(
+		container.NewVBox(
+			shutdown,
+			reboot,
+			spacer,
+			widget.NewSeparator(),
+			spacer,
+			cancel,
+		))
+	pup = widget.NewModalPopUp(buttons, u.win.Canvas())
+	pup.Show()
 }
 
 func (u *ui) doLogin() {
