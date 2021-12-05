@@ -13,9 +13,9 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
 	"github.com/BurntSushi/xgb/randr"
 	"github.com/BurntSushi/xgb/xproto"
 	"github.com/BurntSushi/xgbutil"
@@ -43,15 +43,32 @@ func newUI(w fyne.Window, p fyne.Preferences, host func() string) *ui {
 }
 
 func (u *ui) askShutdown() {
-	dialog.ShowConfirm("Shutdown", "Are you sure you want to shut down?",
-		func(ok bool) {
-			if !ok {
-				return
-			}
+	var pop *widget.PopUp
+	message := widget.NewLabel("Are you sure you want to power off your computer?")
+	message.Alignment = fyne.TextAlignCenter
 
-			cmd := exec.Command("shutdown", "-h", "now")
-			_ = cmd.Start()
-		}, u.win)
+	buttons := container.NewGridWithColumns(3,
+		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
+			pop.Hide()
+		}),
+		widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
+			pop.Hide()
+			_ = exec.Command("shutdown", "-r", "now").Start()
+		}),
+		container.NewMax(newButtonBackground(theme.ErrorColor()),
+			widget.NewButtonWithIcon("Power off", theme.NewThemedResource(resourcePowerSvg), func() {
+				pop.Hide()
+				_ = exec.Command("shutdown", "-h", "now").Start()
+			})))
+	body := container.NewVBox(message, container.NewCenter(buttons))
+
+	title := widget.NewLabelWithStyle("Shutdown", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
+	prop := canvas.NewRectangle(color.Transparent)
+	prop.SetMinSize(body.MinSize().Add(fyne.NewSize(32, 16))) // pad to match dialog
+	content := container.NewVBox(title, container.NewMax(prop, body))
+
+	pop = widget.NewModalPopUp(content, u.win.Canvas())
+	pop.Show()
 }
 
 func (u *ui) doLogin() {
@@ -116,10 +133,11 @@ func (u *ui) loadUI() {
 		widget.NewFormItem("Password", u.pass),
 		widget.NewFormItem("Session", u.session))
 	f := widget.NewForm(formItems...)
-	f.SubmitText = "Log In"
-	f.CancelText = "Shutdown"
-	f.OnCancel = u.askShutdown
-	f.OnSubmit = u.doLogin
+	login := widget.NewButtonWithIcon("Log In", theme.LoginIcon(), u.doLogin)
+	login.Importance = widget.HighImportance
+	buttons := container.NewGridWithColumns(2,
+		widget.NewButtonWithIcon("Shutdown...", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
+		login)
 
 	bg := canvas.NewImageFromResource(background)
 	r, g, b, _ := theme.BackgroundColor().RGBA()
@@ -147,7 +165,8 @@ func (u *ui) loadUI() {
 
 			container.NewMax(widget.NewLabel(""), u.err),
 			container.NewCenter(container.NewHBox(avatars...)),
-			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "), f),
+			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "),
+				container.NewVBox(f, buttons)),
 			widget.NewLabel(""),
 		))),
 	))
