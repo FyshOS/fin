@@ -49,7 +49,9 @@ func (u *ui) askShutdown() {
 	message.Alignment = fyne.TextAlignCenter
 
 	buttons := container.NewGridWithColumns(3,
-		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), pop.Hide),
+		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
+			pop.Hide()
+		}),
 		widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
 			pop.Hide()
 			_ = exec.Command("shutdown", "-r", "now").Start()
@@ -159,7 +161,7 @@ func (u *ui) loadUI() {
 
 	u.win.SetContent(container.NewMax(bg,
 		container.NewCenter(container.NewMax(box, container.NewVBox(
-			widget.NewLabelWithStyle(fmt.Sprintf("Log in to %s", u.hostname()), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
 
 			container.NewMax(widget.NewLabel(""), u.err),
