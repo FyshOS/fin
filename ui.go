@@ -190,11 +190,11 @@ func (u *ui) loadUI() {
 }
 
 func (u *ui) sessionNames() []string {
-	var ret []string
-	for _, sess := range u.sessions {
-		ret = append(ret, sess.name)
+	names := make([]string, len(u.sessions))
+	for i, sess := range u.sessions {
+		names[i] = sess.name
 	}
-	return ret
+	return names
 }
 
 func (u *ui) sessionExec() string {
