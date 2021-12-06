@@ -172,7 +172,7 @@ func (u *ui) loadUI() {
 
 	matched := false
 	storedName := u.pref.String(prefUserKey)
-	for i, name := range u.users() {
+	for i, name := range users {
 		if name != storedName {
 			continue
 		}
