@@ -49,7 +49,9 @@ func (u *ui) askShutdown() {
 	message.Alignment = fyne.TextAlignCenter
 
 	buttons := container.NewGridWithColumns(3,
-		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), pop.Hide),
+		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
+			pop.Hide()
+		}),
 		widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
 			pop.Hide()
 			_ = exec.Command("shutdown", "-r", "now").Start()
@@ -159,7 +161,7 @@ func (u *ui) loadUI() {
 
 	u.win.SetContent(container.NewMax(bg,
 		container.NewCenter(container.NewMax(box, container.NewVBox(
-			widget.NewLabelWithStyle(fmt.Sprintf("Log in to %s", u.hostname()), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
 
 			container.NewMax(widget.NewLabel(""), u.err),
@@ -172,7 +174,7 @@ func (u *ui) loadUI() {
 
 	matched := false
 	storedName := u.pref.String(prefUserKey)
-	for i, name := range u.users() {
+	for i, name := range users {
 		if name != storedName {
 			continue
 		}
@@ -188,11 +190,11 @@ func (u *ui) loadUI() {
 }
 
 func (u *ui) sessionNames() []string {
-	var ret []string
-	for _, sess := range u.sessions {
-		ret = append(ret, sess.name)
+	names := make([]string, len(u.sessions))
+	for i, sess := range u.sessions {
+		names[i] = sess.name
 	}
-	return ret
+	return names
 }
 
 func (u *ui) sessionExec() string {
