@@ -43,7 +43,7 @@ func main() {
 
 	a := app.NewWithID("io.fyne.fin")
 	w := a.Driver().CreateWindow("Fin")
-	ui := newUI(w, a.Preferences(), hostname)
+	ui := newUI(w, a.Preferences(), hostname, getUsers)
 	w.SetPadded(false)
 
 	if display == "" {

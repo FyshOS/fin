@@ -34,12 +34,13 @@ type ui struct {
 
 	hostname func() string
 	user     string
+	users    func() []string
 	sessions []*session
 	pref     fyne.Preferences
 }
 
-func newUI(w fyne.Window, p fyne.Preferences, host func() string) *ui {
-	return &ui{win: w, hostname: host, pref: p, sessions: loadSessions()}
+func newUI(w fyne.Window, p fyne.Preferences, host func() string, users func() []string) *ui {
+	return &ui{win: w, hostname: host, pref: p, sessions: loadSessions(), users: users}
 }
 
 func (u *ui) askShutdown() {
@@ -101,7 +102,7 @@ func (u *ui) loadUI() {
 	u.err = canvas.NewText("", theme.ErrorColor())
 	u.err.Alignment = fyne.TextAlignCenter
 
-	users := getUsers()
+	users := u.users()
 	var formItems []*widget.FormItem
 	if len(users) == 0 {
 		user := widget.NewEntry()
@@ -154,7 +155,7 @@ func (u *ui) loadUI() {
 
 	matched := false
 	storedName := u.pref.String(prefUserKey)
-	for i, name := range getUsers() {
+	for i, name := range u.users() {
 		if name != storedName {
 			continue
 		}
@@ -164,6 +165,8 @@ func (u *ui) loadUI() {
 	}
 	if matched {
 		u.win.Canvas().Focus(u.pass)
+	} else if len(users) == 0 {
+		u.win.Canvas().Focus(formItems[0].Widget.(*widget.Entry))
 	}
 }
 
