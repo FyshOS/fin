@@ -48,9 +48,7 @@ func (u *ui) askShutdown() {
 	message.Alignment = fyne.TextAlignCenter
 
 	buttons := container.NewGridWithColumns(3,
-		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
-			pop.Hide()
-		}),
+		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), pop.Hide),
 		widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
 			pop.Hide()
 			_ = exec.Command("shutdown", "-r", "now").Start()
@@ -136,7 +134,7 @@ func (u *ui) loadUI() {
 	login := widget.NewButtonWithIcon("Log In", theme.LoginIcon(), u.doLogin)
 	login.Importance = widget.HighImportance
 	buttons := container.NewGridWithColumns(2,
-		widget.NewButtonWithIcon("Shutdown...", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
+		widget.NewButtonWithIcon("Shutdown", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
 		login)
 
 	bg := canvas.NewImageFromResource(background)
