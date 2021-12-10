@@ -11,7 +11,6 @@ build:
 install:
 	install -Dm00755 fin $(DESTDIR)$(PREFIX)/bin/fin
 	install -Dm00644 fin.service $(DESTDIR)$(PREFIX)/lib/systemd/system/fin.service
-	test ! -f /etc/pam.d/display_manager && install -Dm00644 /etc/pam.d/login /etc/pam.d/display_manager || true
 
 uninstall:
 	-rm $(DESTDIR)$(PREFIX)/bin/fin
