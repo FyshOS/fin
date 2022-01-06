@@ -13,6 +13,8 @@
 #include <pwd.h>
 #include <paths.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <grp.h>
 
 #define SERVICE_NAME "display_manager"
 
@@ -25,6 +27,15 @@
     } while (1);                                    \
 
 static pam_handle_t *pam_handle;
+
+static void change_identity (struct passwd *pw) {
+	if (initgroups(pw->pw_name, pw->pw_gid) == -1)
+		exit(1);
+	endgrent();
+	if (setgid(pw->pw_gid) || setuid(pw->pw_uid))
+		exit(1);
+}
+
 
 static int end(int last_result) {
     int result = pam_end(pam_handle, last_result);
@@ -146,9 +157,7 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
 
     *child_pid = fork();
     if (*child_pid == 0) {
-        setuid(pw->pw_uid);
-        setgid(pw->pw_gid);
-
+		change_identity(pw);
         chdir(pw->pw_dir);
         char **env = pam_getenvlist(pam_handle);
         execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
@@ -159,18 +168,20 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
     return true;
 }
 
+
+
 bool logout(void) {
-    int result = pam_close_session(pam_handle, 0);
-    if (result != PAM_SUCCESS) {
-        pam_setcred(pam_handle, PAM_DELETE_CRED);
-        err("pam_close_session");
-    }
+	int result = pam_close_session(pam_handle, 0);
+	if (result != PAM_SUCCESS) {
+		pam_setcred(pam_handle, PAM_DELETE_CRED);
+		err("pam_close_session");
+	}
 
-    result = pam_setcred(pam_handle, PAM_DELETE_CRED);
-    if (result != PAM_SUCCESS) {
-        err("pam_setcred");
-    }
+	result = pam_setcred(pam_handle, PAM_DELETE_CRED);
+	if (result != PAM_SUCCESS) {
+		err("pam_setcred");
+	}
 
-    end(result);
-    return true;
+	end(result);
+	return true;
 }
