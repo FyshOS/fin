@@ -13,6 +13,8 @@
 #include <pwd.h>
 #include <paths.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <grp.h>
 
 #define SERVICE_NAME "display_manager"
 
@@ -26,6 +28,15 @@
 
 static pam_handle_t *pam_handle;
 
+static void change_identity (struct passwd *pw) {
+    if (initgroups(pw->pw_name, pw->pw_gid) == -1)
+        _Exit(1);
+    endgrent();
+    if (setgid(pw->pw_gid) || setuid(pw->pw_uid))
+        _Exit(1);
+}
+
+
 static int end(int last_result) {
     int result = pam_end(pam_handle, last_result);
     pam_handle = 0;
@@ -33,7 +44,7 @@ static int end(int last_result) {
 }
 
 static int conv(int num_msg, const struct pam_message **msg,
-                struct pam_response **resp, void *appdata_ptr) {
+        struct pam_response **resp, void *appdata_ptr) {
     int i;
 
     *resp = calloc(num_msg, sizeof(struct pam_response));
@@ -45,21 +56,21 @@ static int conv(int num_msg, const struct pam_message **msg,
     for (i = 0; i < num_msg; i++) {
         char *username, *password;
         switch (msg[i]->msg_style) {
-        case PAM_PROMPT_ECHO_ON:
-            username = ((char **) appdata_ptr)[0];
-            (*resp)[i].resp = strdup(username);
-            break;
-        case PAM_PROMPT_ECHO_OFF:
-            password = ((char **) appdata_ptr)[1];
-            (*resp)[i].resp = strdup(password);
-            break;
-        case PAM_ERROR_MSG:
-            fprintf(stderr, "%s\n", msg[i]->msg);
-            result = PAM_CONV_ERR;
-            break;
-        case PAM_TEXT_INFO:
-            printf("%s\n", msg[i]->msg);
-            break;
+            case PAM_PROMPT_ECHO_ON:
+                username = ((char **) appdata_ptr)[0];
+                (*resp)[i].resp = strdup(username);
+                break;
+            case PAM_PROMPT_ECHO_OFF:
+                password = ((char **) appdata_ptr)[1];
+                (*resp)[i].resp = strdup(password);
+                break;
+            case PAM_ERROR_MSG:
+                fprintf(stderr, "%s\n", msg[i]->msg);
+                result = PAM_CONV_ERR;
+                break;
+            case PAM_TEXT_INFO:
+                printf("%s\n", msg[i]->msg);
+                break;
         }
         if (result != PAM_SUCCESS) {
             break;
@@ -146,18 +157,18 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
 
     *child_pid = fork();
     if (*child_pid == 0) {
-        setuid(pw->pw_uid);
-        setgid(pw->pw_gid);
-
+        change_identity(pw);
         chdir(pw->pw_dir);
         char **env = pam_getenvlist(pam_handle);
         execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
         printf("Failed to start window manager");
-        exit(1);
+        _Exit(1);
     }
 
     return true;
 }
+
+
 
 bool logout(void) {
     int result = pam_close_session(pam_handle, 0);
