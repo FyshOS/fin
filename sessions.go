@@ -71,17 +71,18 @@ func loadSession(path string) *session {
 
 // lookupXdgDataDirs returns a string slice of all XDG_DATA_DIRS
 func lookupXdgDataDirs() []string {
-	dataLocation := os.Getenv("XDG_DATA_DIRS")
-	locationLookup := strings.Split(dataLocation, ":")
-	if len(locationLookup) == 0 || (len(locationLookup) == 1 && locationLookup[0] == "") {
-		var fallbackLocations []string
-		homeDir, err := os.UserHomeDir()
+	var dirs []string
+	dataHome := os.Getenv("XDG_DATA_HOME")
+	if dataHome == "" {
+		home, err := os.UserHomeDir()
 		if err == nil {
-			fallbackLocations = append(fallbackLocations, filepath.Join(homeDir, ".local/share"))
+			dataHome = filepath.Join(home, ".local/share")
 		}
-		fallbackLocations = append(fallbackLocations, "/usr/local/share")
-		fallbackLocations = append(fallbackLocations, "/usr/share")
-		return fallbackLocations
 	}
-	return locationLookup
+	dataDirs := os.Getenv("XDG_DATA_DIRS")
+	if dataDirs == "" {
+		dataDirs = "/usr/local/share/:/usr/share/"
+	}
+	dirs = append(strings.Split(dataHome, ":"), strings.Split(dataDirs, ":")...)
+	return dirs
 }
