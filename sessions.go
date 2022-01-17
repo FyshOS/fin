@@ -71,7 +71,6 @@ func loadSession(path string) *session {
 
 // lookupXdgDataDirs returns a string slice of all XDG_DATA_DIRS
 func lookupXdgDataDirs() []string {
-	var dirs []string
 	dataHome := os.Getenv("XDG_DATA_HOME")
 	if dataHome == "" {
 		home, err := os.UserHomeDir()
@@ -83,6 +82,7 @@ func lookupXdgDataDirs() []string {
 	if dataDirs == "" {
 		dataDirs = "/usr/local/share/:/usr/share/"
 	}
-	dirs = append(strings.Split(dataHome, ":"), strings.Split(dataDirs, ":")...)
+	dirs := []string{dataHome}
+	dirs = append(dirs, strings.Split(dataDirs, ":")...)
 	return dirs
 }
