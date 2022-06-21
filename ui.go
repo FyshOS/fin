@@ -144,7 +144,7 @@ func (u *ui) loadUI() {
 	bgCol := fyne.CurrentApp().Settings().Theme().Color(
 		"fynedeskPanelBackground",
 		fyne.CurrentApp().Settings().ThemeVariant())
-	if bgCol == color.Transparent {
+	if bgCol == nil || bgCol == color.Transparent {
 		r, g, b, _ := theme.BackgroundColor().RGBA()
 		bgCol = color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd}
 	}
