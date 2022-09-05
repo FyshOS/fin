@@ -3,7 +3,11 @@ package main
 /*
 #cgo LDFLAGS: -lpam
 #cgo openbsd CFLAGS: -I/usr/local/include
+<<<<<<< HEAD
 #cgo openbsd LDFLAGS: -L/usr/local//lib
+=======
+#cgo openbsd LDFLAGS: -L/usr/local/lib
+>>>>>>> fac6a73 (Addressing feedback)
 
 #include <stdbool.h>
 #include <stdlib.h>
