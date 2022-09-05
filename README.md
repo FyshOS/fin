@@ -32,7 +32,17 @@ instead of PAM, you will need to get the OpenPAM dependency first, by running:
 $ doas pkg_add -U openpam
 ```
 
+<<<<<<< HEAD
 Afterwards, you can go to the Fin source folder and run `make embed` to test it out.
+=======
+Next you need to set proper PAM rules:
+
+```
+$ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
+```
+
+Finally, you can go to the Fin source folder and run `make embed` to test it out.
+>>>>>>> c3db6c0 (More details about auth)
 
 
 # Screenshot
