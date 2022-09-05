@@ -1,7 +1,7 @@
 // The code in this file is from the excellent blog post https://www.gulshansingh.com/posts/how-to-write-a-display-manager/
 
 #include <security/pam_appl.h>
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <security/openpam.h>
 #else
 #include <security/pam_misc.h>
