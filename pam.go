@@ -2,6 +2,8 @@ package main
 
 /*
 #cgo LDFLAGS: -lpam
+#cgo openbsd CFLAGS: -I/usr/local/include
+#cgo openbsd LDFLAGS: -L/usr/local/lib
 
 #include <stdbool.h>
 #include <stdlib.h>
