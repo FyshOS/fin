@@ -4,7 +4,7 @@ A minimal but good-looking login manager for Linux/Unix.
 The current boot scripts support only systemd.
 
 If you'd like to try out this project in its early stages
-then you can simply check out this repo and run:
+then you can simply check out this repo and run (Linux with systemd assumed):
 
 ```shell
 $ make
@@ -21,7 +21,27 @@ $ systemctl start fin
 
 That should be all you need if you are transitioning away from
 another Display Manager. If you run into issues using Fin,
-please visit [Troubleshooting](# Troubleshooting) below.
+please visit [Troubleshooting](#troubleshooting) below.
+
+### OpenBSD support
+
+There is also some initial effort on building and running Fin under OpenBSD, 
+so if you feel adventurous enough, you can give it a go. Since OpenBSD uses BSD Auth 
+instead of PAM, you will need to get the OpenPAM dependency first, by running:
+
+```shell
+$ doas pkg_add -U openpam
+```
+
+Afterwards, you can go to the Fin source folder and run `make embed` to test it out.
+
+Next you need to set proper PAM rules:
+
+```
+$ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
+```
+
+Finally, you can go to the Fin source folder and run `make embed` to test it out.
 
 
 # Screenshot
