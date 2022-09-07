@@ -33,8 +33,6 @@ instead of PAM, you will need to get the OpenPAM dependency first, by running:
 $ doas pkg_add -U openpam
 ```
 
-Afterwards, you can go to the Fin source folder and run `make embed` to test it out.
-
 Next you need to set proper PAM rules:
 
 ```
