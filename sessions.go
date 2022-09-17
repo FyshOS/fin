@@ -12,7 +12,7 @@ import (
 
 var xinitSession = &session{
 	name: ".xinitrc",
-	exec: "/bin/bash --login .xinitrc",
+	exec: "/bin/sh -l .xinitrc",
 }
 
 type session struct {
