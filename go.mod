@@ -3,8 +3,7 @@ module fyne.io/fin
 go 1.15
 
 require (
-	fyne.io/fyne/v2 v2.1.4-0.20220521115554-6d0d5248bbeb
-	github.com/BurntSushi/xgb v0.0.0-20201008132610-5f9e7b3c49cd
-	github.com/BurntSushi/xgbutil v0.0.0-20160919175755-f7c97cef3b4e
-	github.com/stretchr/testify v1.7.0
+	fyne.io/fyne/v2 v2.2.2
+	github.com/jezek/xgb v1.0.1
+	github.com/stretchr/testify v1.7.2
 )
