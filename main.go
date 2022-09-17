@@ -72,8 +72,8 @@ func main() {
 }
 
 func startX() int {
-	cmd := "/usr/bin/X :0 vt01"
-	exe := exec.Command("/bin/bash", "-c", cmd)
+	cmd := "X :0 vt01"
+	exe := exec.Command("/bin/sh", "-c", cmd)
 	err := exe.Start()
 	if err != nil {
 		fyne.LogError("Could not start X server", err)

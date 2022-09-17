@@ -39,7 +39,10 @@ Next you need to set proper PAM rules:
 $ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
 ```
 
-Finally, you can go to the Fin source folder and run `make embed` to test it out.
+Finally, you can go to the Fin source folder and run `make embed-obsd` to test it out under Xephyr.
+
+Please, keep in mind that the actual running on bare X under OpenBSD is still work in progress, and 
+therefore you probably won't be able to login/authenticate for the time being.
 
 
 # Screenshot
