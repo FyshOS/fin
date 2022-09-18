@@ -16,9 +16,9 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
-	"github.com/BurntSushi/xgb/randr"
-	"github.com/BurntSushi/xgb/xproto"
-	"github.com/BurntSushi/xgbutil"
+	"github.com/jezek/xgb"
+	"github.com/jezek/xgb/randr"
+	"github.com/jezek/xgb/xproto"
 )
 
 const (
@@ -235,23 +235,32 @@ func (u *ui) updateForUsername(user string) {
 }
 
 func getScreenSize() (uint16, uint16) {
-	conn, err := xgbutil.NewConn()
+	conn, err := xgb.NewConn()
 	if err != nil {
 		log.Println("ScreenSize X connect error", err)
 		return 1280, 720
 	}
-	err = randr.Init(conn.Conn())
+	err = randr.Init(conn)
 	if err != nil {
 		log.Println("ScreenSize X RandR error", err)
 		return 1280, 720
 	}
 
-	root := xproto.Setup(conn.Conn()).DefaultScreen(conn.Conn()).Root
-	resources, _ := randr.GetScreenResources(conn.Conn(), root).Reply()
-	output := resources.Outputs[0]
-	outputInfo, _ := randr.GetOutputInfo(conn.Conn(), output, 0).Reply()
+	root := xproto.Setup(conn).DefaultScreen(conn).Root
+	resources, _ := randr.GetScreenResources(conn, root).Reply()
 
-	crtcInfo, _ := randr.GetCrtcInfo(conn.Conn(), outputInfo.Crtc, 0).Reply()
+	// Get first connected output
+	// TODO: Consider multiple connected outputs in multihead mode
+	var crtcInfo *randr.GetCrtcInfoReply
+	for _, v := range resources.Outputs {
+		output, _ := randr.GetOutputInfo(conn, v, 0).Reply()
+		// 0 = "connected", 1 = "disconnected, 2 = "unknown"
+		if output.Connection == 0 {
+			crtcInfo, _ = randr.GetCrtcInfo(conn, output.Crtc, 0).Reply()
+			break
+		}
+	}
+
 	return crtcInfo.Width, crtcInfo.Height
 }
 
