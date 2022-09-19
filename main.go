@@ -72,7 +72,7 @@ func main() {
 }
 
 func startX() int {
-	cmd := "X :0 vt01"
+	cmd := "X :0"
 	exe := exec.Command("/bin/sh", "-c", cmd)
 	err := exe.Start()
 	if err != nil {

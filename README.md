@@ -1,7 +1,7 @@
 # Fin, the Fyne Login Manager
 
 A minimal but good-looking login manager for Linux/Unix.
-The current boot scripts support only systemd.
+The current boot scripts support only systemd on Linux and rc.d on OpenBSD.
 
 If you'd like to try out this project in its early stages
 then you can simply check out this repo and run (Linux with systemd assumed):
@@ -25,25 +25,23 @@ please visit [Troubleshooting](#troubleshooting) below.
 
 ### OpenBSD support
 
-There is also some initial effort on building and running Fin under OpenBSD, 
-so if you feel adventurous enough, you can give it a go. Since OpenBSD uses BSD Auth 
-instead of PAM, you will need to get the OpenPAM dependency first, by running:
+Fin builds and runs under OpenBSD as well. Since OpenBSD uses BSD Auth 
+instead of PAM, you will need to get the OpenPAM dependency first and set proper rules by running:
 
 ```shell
 $ doas pkg_add -U openpam
-```
-
-Next you need to set proper PAM rules:
-
-```
 $ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
 ```
 
-Finally, you can go to the Fin source folder and run `make embed-obsd` to test it out under Xephyr.
+To run Fin under bare X on system boot, install it with commands as following. If you have some other display manager enabled, make sure you disable it first, so it doesn't conflict with Fin. Below we assume that you have got `xenodm`, and disable it explicitly:
 
-Please, keep in mind that the actual running on bare X under OpenBSD is still work in progress, and 
-therefore you probably won't be able to login/authenticate for the time being.
+```shell
+$ doas make install
+$ doas rcctl disable xenodm
+$ doas rcctl enable fin
+```
 
+Reboot the system and Fin should start automatically during boot process.
 
 # Screenshot
 
