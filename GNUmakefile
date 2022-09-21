@@ -19,11 +19,3 @@ uninstall:
 embed:
 	DISPLAY=:0 Xephyr :1 -screen 1280x720 &
 	DISPLAY=:1 go run .
-	
-embed-obsd:
-	go build .
-	doas cp -f fin $(DESTDIR)$(PREFIX)/fin
-	doas chmod 4555 $(DESTDIR)$(PREFIX)/fin
-	Xephyr :1 -screen 1280x720 &
-	DISPLAY=:1 $(DESTDIR)$(PREFIX)/fin &
-	doas rm $(DESTDIR)$(PREFIX)/fin
