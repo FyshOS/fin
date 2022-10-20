@@ -3,13 +3,14 @@
 # OpenBSD rc script
 
 daemon="/usr/local/bin/fin"
+daemon_timeout=1
 
 . /etc/rc.d/rc.subr
 
-rc_reload=NO
-
 rc_post() {
-	pkill -T "${daemon_rtable}" -f fin
+	
+	chown root /dev/console
+	chmod 622 /dev/console
 
 	if [[ -c /dev/dri/card0 ]]; then
 		chown root /dev/dri/card0

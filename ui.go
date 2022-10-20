@@ -7,7 +7,10 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -93,6 +96,15 @@ func (u *ui) doLogin() {
 			return
 		}
 
+		// OpenBSD: give device ownership to logged in user
+		if runtime.GOOS == "openbsd" {
+			usr, _ := user.Lookup(u.user)
+			uid, _ := strconv.Atoi(usr.Uid)
+			_ = os.Chown("/dev/console", uid, -1)
+			_ = os.Chown("/dev/dri/card0", uid, -1)
+			_ = os.Chown("/dev/dri/renderD128", uid, -1)
+		}
+
 		u.win.Hide()
 		_, _ = proc.Wait()
 
@@ -101,6 +113,13 @@ func (u *ui) doLogin() {
 		u.pass.SetText("")
 		u.win.Canvas().Focus(u.pass)
 		u.setError("")
+
+		// OpenBSD: give device ownership back to root
+		if runtime.GOOS == "openbsd" {
+			_ = os.Chown("/dev/console", 0, -1)
+			_ = os.Chown("/dev/dri/card0", 0, -1)
+			_ = os.Chown("/dev/dri/renderD128", 0, -1)
+		}
 	}()
 }
 
