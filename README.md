@@ -33,9 +33,10 @@ $ doas pkg_add -U openpam
 $ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
 ```
 
-To run Fin under bare X on system boot, install it with commands as following. If you have some other display manager enabled, make sure you disable it first, so it doesn't conflict with Fin. Below we assume that you have got `xenodm`, and disable it explicitly:
+To run Fin under bare X on system boot, build and install it with commands as following. If you have some other display manager enabled, make sure you disable it first, so it doesn't conflict with Fin. Below we assume that you have got `xenodm`, and disable it explicitly:
 
 ```shell
+$ make build
 $ doas make install
 $ doas rcctl disable xenodm
 $ doas rcctl enable fin
