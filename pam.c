@@ -101,9 +101,27 @@ static void init_env(struct passwd *pw) {
     set_env("SHELL", pw->pw_shell);
     set_env("USER", pw->pw_name);
     set_env("LOGNAME", pw->pw_name);
-    set_env("PATH", "/usr/local/sbin:/usr/local/bin:/usr/bin");
     set_env("MAIL", _PATH_MAILDIR);
     set_env("DISPLAY", ":0");
+
+    #if defined(__OpenBSD__)
+    const char *path_def = "/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin";
+    size_t pathv_len = strlen(pw->pw_dir) + strlen(path_def) + 1;
+    char *pathv = malloc(pathv_len);
+    snprintf(pathv, pathv_len, "%s%s", pw->pw_dir, path_def);
+    set_env("PATH", pathv);
+    free(pathv);
+
+    const char *kshrc = "/.kshrc";
+    size_t env_len = strlen(pw->pw_dir) + strlen(kshrc) + 1;
+    char *envv = malloc(env_len);
+    snprintf(envv, env_len, "%s%s", pw->pw_dir, kshrc);
+    set_env("ENV", envv);
+    free(envv);
+
+    #else
+    set_env("PATH", "/usr/local/sbin:/usr/local/bin:/usr/bin");
+    #endif
 
     size_t xauthority_len = strlen(pw->pw_dir) + strlen("/.Xauthority") + 1;
     char *xauthority = malloc(xauthority_len);
