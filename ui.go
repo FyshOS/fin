@@ -292,7 +292,7 @@ func getUsers() []string {
 
 	var ret []string
 	for _, line := range strings.Split(string(data), "\n") {
-		if strings.Contains(line, "nologin") {
+		if strings.Contains(line, "nologin") || strings.Contains(line, "/var/empty") {
 			continue
 		}
 
