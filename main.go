@@ -1,6 +1,7 @@
 package main // import "fyne.io/fin"
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -26,6 +27,10 @@ func init() {
 }
 
 func main() {
+	logger := openLogWriter()
+	log.SetOutput(logger)
+	log.Println("Fin started")
+
 	var xPID int
 	display := os.Getenv("DISPLAY")
 	if display == "" {
@@ -37,6 +42,8 @@ func main() {
 				stopX(xPID)
 			}
 		}()
+
+		log.Println("Starting X")
 		xPID = startX()
 		_ = os.Setenv("DISPLAY", ":0")
 	}
@@ -67,6 +74,7 @@ func main() {
 	w.ShowAndRun()
 
 	if xPID != 0 {
+		log.Println("Stopping X")
 		stopX(xPID)
 	}
 }
