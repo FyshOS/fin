@@ -51,19 +51,22 @@ func (u *ui) askShutdown() {
 	message := widget.NewLabel("Are you sure you want to power off your computer?")
 	message.Alignment = fyne.TextAlignCenter
 
+	reboot := widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
+		pop.Hide()
+		_ = exec.Command("shutdown", "-r", "now").Start()
+	})
+	reboot.Importance = widget.WarningImportance
+	shutdown := widget.NewButtonWithIcon("Power off", theme.NewThemedResource(resourcePowerSvg), func() {
+		pop.Hide()
+		_ = exec.Command("shutdown", "-h", "now").Start()
+	})
+	shutdown.Importance = widget.DangerImportance
+
 	buttons := container.NewGridWithColumns(3,
 		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
 			pop.Hide()
 		}),
-		widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
-			pop.Hide()
-			_ = exec.Command("shutdown", "-r", "now").Start()
-		}),
-		container.NewMax(newButtonBackground(theme.ErrorColor()),
-			widget.NewButtonWithIcon("Power off", theme.NewThemedResource(resourcePowerSvg), func() {
-				pop.Hide()
-				_ = exec.Command("shutdown", "-h", "now").Start()
-			})))
+		reboot, shutdown)
 	body := container.NewVBox(message, container.NewCenter(buttons))
 
 	title := widget.NewLabelWithStyle("Shutdown", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
@@ -173,7 +176,7 @@ func (u *ui) loadUI() {
 	for _, name := range users {
 		ava := newAvatar(name, func(user string) {
 			for _, a := range avatars {
-				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[0].(*canvas.Rectangle)
+				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[2].(*canvas.Rectangle)
 				border.StrokeColor = theme.ShadowColor()
 				border.Refresh()
 			}
@@ -204,7 +207,7 @@ func (u *ui) loadUI() {
 			continue
 		}
 
-		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Button).Tapped(&fyne.PointEvent{})
+		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[0].(*widget.Button).Tapped(&fyne.PointEvent{})
 		matched = true
 	}
 	if matched {
@@ -313,7 +316,7 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 		ava = canvas.NewImageFromFile(facePath)
 	}
 	ava.SetMinSize(fyne.NewSize(120, 120))
-	border := canvas.NewRectangle(theme.InputBackgroundColor())
+	border := canvas.NewRectangle(color.Transparent)
 	border.StrokeWidth = theme.InputBorderSize()
 	border.StrokeColor = theme.ShadowColor()
 
@@ -324,7 +327,7 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	})
 	tapper.Importance = widget.LowImportance
 
-	img := container.NewMax(border, tapper, ava)
+	img := container.NewMax(tapper, ava, border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
