@@ -43,7 +43,7 @@ func rotateLog(path string) {
 	crashPath := rotatedLogPath(path)
 	err := os.Rename(path, crashPath)
 	if err != nil {
-		log.Println("Could not save crash file", crashPath)
+		fyne.LogError("Could not save crash file: " + crashPath, err)
 	}
 }
 
