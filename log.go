@@ -12,7 +12,7 @@ import (
 )
 
 func logPath() string {
-	cacheDir := filepath.Join(systemLogDir(), "fyne", "io.fyne.fin")
+	cacheDir := filepath.Join(systemLogDir(), "fyne", "com.fyshos.fin")
 	err := os.MkdirAll(cacheDir, 0700)
 	if err != nil {
 		fyne.LogError("Could not create log directory", err)

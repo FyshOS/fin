@@ -48,7 +48,7 @@ func main() {
 		_ = os.Setenv("DISPLAY", ":0")
 	}
 
-	a := app.NewWithID("io.fyne.fin")
+	a := app.NewWithID("com.fyshos.fin")
 	w := a.Driver().CreateWindow("Fin")
 	ui := newUI(w, a.Preferences(), hostname, getUsers)
 	w.SetPadded(false)
