@@ -1,4 +1,4 @@
-module fyne.io/fin
+module fyshos.com/fin
 
 go 1.15
 
