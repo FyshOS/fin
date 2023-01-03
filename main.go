@@ -1,4 +1,4 @@
-package main // import "fyne.io/fin"
+package main // import "fyshos.com/fin"
 
 import (
 	"log"
