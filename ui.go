@@ -162,15 +162,11 @@ func (u *ui) loadUI() {
 		widget.NewButtonWithIcon("Shutdown", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
 		login)
 
-	bg := canvas.NewImageFromResource(background)
-	bgCol := fyne.CurrentApp().Settings().Theme().Color(
-		"fynedeskPanelBackground",
-		fyne.CurrentApp().Settings().ThemeVariant())
-	if bgCol == nil || bgCol == color.Transparent {
-		r, g, b, _ := theme.BackgroundColor().RGBA()
-		bgCol = color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd}
+	bg := canvas.NewImageFromResource(backgroundDark)
+	if fyne.CurrentApp().Settings().ThemeVariant() == theme.VariantLight {
+		bg.Resource = backgroundLight
 	}
-	box := canvas.NewRectangle(bgCol)
+	box := canvas.NewRectangle(boxBackgroundColor(fyne.CurrentApp().Settings()))
 
 	var avatars []fyne.CanvasObject
 	for _, name := range users {
@@ -215,6 +211,10 @@ func (u *ui) loadUI() {
 	} else if len(users) == 0 {
 		u.win.Canvas().Focus(formItems[0].Widget.(*widget.Entry))
 	}
+
+	listener := make(chan fyne.Settings)
+	fyne.CurrentApp().Settings().AddChangeListener(listener)
+	go startSettingsListener(listener, bg, box)
 }
 
 func (u *ui) sessionNames() []string {
@@ -254,6 +254,15 @@ func (u *ui) updateForUsername(user string) {
 	if last != "" {
 		u.session.SetSelected(last)
 	}
+}
+
+func boxBackgroundColor(s fyne.Settings) color.Color {
+	bgCol := s.Theme().Color("fynedeskPanelBackground", s.ThemeVariant())
+	if bgCol == nil || bgCol == color.Transparent {
+		r, g, b, _ := theme.BackgroundColor().RGBA()
+		bgCol = color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd}
+	}
+	return bgCol
 }
 
 func getScreenSize() (uint16, uint16) {
@@ -331,4 +340,18 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
+}
+
+func startSettingsListener(settings chan fyne.Settings, bg *canvas.Image, box *canvas.Rectangle) {
+	for s := range settings {
+		if s.ThemeVariant() == theme.VariantLight {
+			bg.Resource = backgroundLight
+		} else {
+			bg.Resource = backgroundDark
+		}
+		bg.Refresh()
+
+		box.FillColor = boxBackgroundColor(s)
+		box.Refresh()
+	}
 }
