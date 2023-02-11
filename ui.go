@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FyshOS/backgrounds/builtin"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -162,10 +164,9 @@ func (u *ui) loadUI() {
 		widget.NewButtonWithIcon("Shutdown", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
 		login)
 
-	bg := canvas.NewImageFromResource(backgroundDark)
-	if fyne.CurrentApp().Settings().ThemeVariant() == theme.VariantLight {
-		bg.Resource = backgroundLight
-	}
+	set := fyne.CurrentApp().Settings()
+	b := &builtin.Builtin{}
+	bg := b.Load(set.Theme(), set.ThemeVariant())
 	box := canvas.NewRectangle(boxBackgroundColor(fyne.CurrentApp().Settings()))
 
 	var avatars []fyne.CanvasObject
@@ -183,7 +184,8 @@ func (u *ui) loadUI() {
 		avatars = append(avatars, ava)
 	}
 
-	u.win.SetContent(container.NewMax(bg,
+	c := container.NewMax(bg)
+	u.win.SetContent(container.NewMax(c,
 		container.NewCenter(container.NewMax(box, container.NewVBox(
 			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
@@ -214,7 +216,7 @@ func (u *ui) loadUI() {
 
 	listener := make(chan fyne.Settings)
 	fyne.CurrentApp().Settings().AddChangeListener(listener)
-	go startSettingsListener(listener, bg, box)
+	go startSettingsListener(listener, c, box)
 }
 
 func (u *ui) sessionNames() []string {
@@ -342,14 +344,12 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	)
 }
 
-func startSettingsListener(settings chan fyne.Settings, bg *canvas.Image, box *canvas.Rectangle) {
+func startSettingsListener(settings chan fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
 	for s := range settings {
-		if s.ThemeVariant() == theme.VariantLight {
-			bg.Resource = backgroundLight
-		} else {
-			bg.Resource = backgroundDark
-		}
-		bg.Refresh()
+		b := &builtin.Builtin{}
+		bg := b.Load(s.Theme(), s.ThemeVariant())
+		c.Objects[0] = bg
+		c.Refresh()
 
 		box.FillColor = boxBackgroundColor(s)
 		box.Refresh()

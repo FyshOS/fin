@@ -37,6 +37,7 @@ cloud.google.com/go/storage v1.6.0/go.mod h1:N7U0C8pVQ/+NIKOBQyamJIeKQKkZ+mxpohl
 cloud.google.com/go/storage v1.8.0/go.mod h1:Wv1Oy7z6Yz3DshWRJFhqM/UCfaWIRTdp0RXyy7KQOVs=
 cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9ullr3+Kg0=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
+fyne.io/fyne/v2 v2.3.0/go.mod h1:odfJmbFnODiKn1MXdL44JR6CK+0v8lrmgdPlrUF6w0M=
 fyne.io/fyne/v2 v2.3.1-0.20230101220108-f2141a6796a0 h1:Tfk5ZnTErWDL51BgGxrYyuCZtb5Xyk7o6OVLzvRly/0=
 fyne.io/fyne/v2 v2.3.1-0.20230101220108-f2141a6796a0/go.mod h1:odfJmbFnODiKn1MXdL44JR6CK+0v8lrmgdPlrUF6w0M=
 fyne.io/systray v1.10.1-0.20221115204952-d16a6177e6f1 h1:OiHw+bZAGEaSreHsA8dDkBOVJmSFzsNTOc/htpM+fOc=
@@ -44,6 +45,8 @@ fyne.io/systray v1.10.1-0.20221115204952-d16a6177e6f1/go.mod h1:oM2AQqGJ1AMo4nNq
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/FyshOS/backgrounds v0.0.0-20230211211421-c40796b863aa h1:M0nm1+QJL/z06s9+yyg+pP7HxZE+X8Kb4b8mCQDPuEU=
+github.com/FyshOS/backgrounds v0.0.0-20230211211421-c40796b863aa/go.mod h1:cOUmJ3HUVmH3W3u9Gj5hM73ZgrDxGNHKMr5T/sBKqLU=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/armon/circbuf v0.0.0-20150827004946-bbbad097214e/go.mod h1:3U/XgcO3hCbHZ8TKRvWD2dDTCfh9M9ya+I9JpbB7O8o=
