@@ -95,7 +95,7 @@ func (u *ui) doLogin() {
 			return
 		}
 
-		// OpenBSD: give device ownership to logged in user
+		// OpenBSD: give device ownership to logged-in user
 		if runtime.GOOS == "openbsd" {
 			usr, _ := user.Lookup(u.user)
 			uid, _ := strconv.Atoi(usr.Uid)
@@ -179,12 +179,12 @@ func (u *ui) loadUI() {
 		avatars = append(avatars, ava)
 	}
 
-	u.win.SetContent(container.NewMax(bg,
-		container.NewCenter(container.NewMax(box, container.NewVBox(
+	u.win.SetContent(container.NewStack(bg,
+		container.NewCenter(container.NewStack(box, container.NewVBox(
 			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
 
-			container.NewMax(widget.NewLabel(""), u.err),
+			container.NewStack(widget.NewLabel(""), u.err),
 			container.NewCenter(container.NewHBox(avatars...)),
 			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "),
 				container.NewVBox(f, buttons)),
@@ -332,7 +332,7 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	})
 	tapper.Importance = widget.LowImportance
 
-	img := container.NewMax(tapper, ava, border)
+	img := container.NewStack(tapper, ava, border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
