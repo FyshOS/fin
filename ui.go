@@ -16,6 +16,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -62,20 +63,15 @@ func (u *ui) askShutdown() {
 	})
 	shutdown.Importance = widget.DangerImportance
 
-	buttons := container.NewGridWithColumns(3,
+	buttons := []fyne.CanvasObject{
 		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
 			pop.Hide()
 		}),
-		reboot, shutdown)
-	body := container.NewVBox(message, container.NewCenter(buttons))
+		reboot, shutdown}
 
-	title := widget.NewLabelWithStyle("Shutdown", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	prop := canvas.NewRectangle(color.Transparent)
-	prop.SetMinSize(body.MinSize().Add(fyne.NewSize(32, 16))) // pad to match dialog
-	content := container.NewVBox(title, container.NewMax(prop, body))
-
-	pop = widget.NewModalPopUp(content, u.win.Canvas())
-	pop.Show()
+	d := dialog.NewCustom("Shutdown", "Cancel", message, u.win)
+	d.SetButtons(buttons)
+	d.Show()
 }
 
 func (u *ui) doLogin() {
