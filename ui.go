@@ -16,6 +16,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -62,20 +63,15 @@ func (u *ui) askShutdown() {
 	})
 	shutdown.Importance = widget.DangerImportance
 
-	buttons := container.NewGridWithColumns(3,
+	buttons := []fyne.CanvasObject{
 		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
 			pop.Hide()
 		}),
-		reboot, shutdown)
-	body := container.NewVBox(message, container.NewCenter(buttons))
+		reboot, shutdown}
 
-	title := widget.NewLabelWithStyle("Shutdown", fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
-	prop := canvas.NewRectangle(color.Transparent)
-	prop.SetMinSize(body.MinSize().Add(fyne.NewSize(32, 16))) // pad to match dialog
-	content := container.NewVBox(title, container.NewMax(prop, body))
-
-	pop = widget.NewModalPopUp(content, u.win.Canvas())
-	pop.Show()
+	d := dialog.NewCustom("Shutdown", "Cancel", message, u.win)
+	d.SetButtons(buttons)
+	d.Show()
 }
 
 func (u *ui) doLogin() {
@@ -99,7 +95,7 @@ func (u *ui) doLogin() {
 			return
 		}
 
-		// OpenBSD: give device ownership to logged in user
+		// OpenBSD: give device ownership to logged-in user
 		if runtime.GOOS == "openbsd" {
 			usr, _ := user.Lookup(u.user)
 			uid, _ := strconv.Atoi(usr.Uid)
@@ -183,12 +179,12 @@ func (u *ui) loadUI() {
 		avatars = append(avatars, ava)
 	}
 
-	u.win.SetContent(container.NewMax(bg,
-		container.NewCenter(container.NewMax(box, container.NewVBox(
+	u.win.SetContent(container.NewStack(bg,
+		container.NewCenter(container.NewStack(box, container.NewVBox(
 			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 			widget.NewSeparator(),
 
-			container.NewMax(widget.NewLabel(""), u.err),
+			container.NewStack(widget.NewLabel(""), u.err),
 			container.NewCenter(container.NewHBox(avatars...)),
 			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "),
 				container.NewVBox(f, buttons)),
@@ -336,7 +332,7 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	})
 	tapper.Importance = widget.LowImportance
 
-	img := container.NewMax(tapper, ava, border)
+	img := container.NewStack(tapper, ava, border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
