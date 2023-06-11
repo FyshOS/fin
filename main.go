@@ -1,6 +1,7 @@
-package main // import "fyne.io/fin"
+package main // import "fyshos.com/fin"
 
 import (
+	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -26,6 +27,10 @@ func init() {
 }
 
 func main() {
+	logger := openLogWriter()
+	log.SetOutput(logger)
+	log.Println("Fin started")
+
 	var xPID int
 	display := os.Getenv("DISPLAY")
 	if display == "" {
@@ -37,13 +42,15 @@ func main() {
 				stopX(xPID)
 			}
 		}()
+
+		log.Println("Starting X")
 		xPID = startX()
 		_ = os.Setenv("DISPLAY", ":0")
 	}
 
-	a := app.NewWithID("io.fyne.fin")
+	a := app.NewWithID("com.fyshos.fin")
 	w := a.Driver().CreateWindow("Fin")
-	ui := newUI(w, a.Preferences(), hostname)
+	ui := newUI(w, a.Preferences(), hostname, getUsers)
 	w.SetPadded(false)
 
 	if display == "" {
@@ -67,13 +74,14 @@ func main() {
 	w.ShowAndRun()
 
 	if xPID != 0 {
+		log.Println("Stopping X")
 		stopX(xPID)
 	}
 }
 
 func startX() int {
-	cmd := "/usr/bin/X :0 vt01"
-	exe := exec.Command("/bin/bash", "-c", cmd)
+	cmd := "X :0 vt05"
+	exe := exec.Command("/bin/sh", "-c", cmd)
 	err := exe.Start()
 	if err != nil {
 		fyne.LogError("Could not start X server", err)

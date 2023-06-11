@@ -2,6 +2,9 @@ package main
 
 /*
 #cgo LDFLAGS: -lpam
+#cgo openbsd CFLAGS: -I/usr/local/include
+#cgo openbsd LDFLAGS: -L/usr/local/lib
+#cgo darwin CFLAGS: -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include
 
 #include <stdbool.h>
 #include <stdlib.h>

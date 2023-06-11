@@ -12,7 +12,7 @@ import (
 
 var xinitSession = &session{
 	name: ".xinitrc",
-	exec: "/bin/bash --login .xinitrc",
+	exec: "/bin/sh -l .xinitrc",
 }
 
 type session struct {
@@ -71,17 +71,21 @@ func loadSession(path string) *session {
 
 // lookupXdgDataDirs returns a string slice of all XDG_DATA_DIRS
 func lookupXdgDataDirs() []string {
-	dataLocation := os.Getenv("XDG_DATA_DIRS")
-	locationLookup := strings.Split(dataLocation, ":")
-	if len(locationLookup) == 0 || (len(locationLookup) == 1 && locationLookup[0] == "") {
-		var fallbackLocations []string
-		homeDir, err := os.UserHomeDir()
+	dataHome := os.Getenv("XDG_DATA_HOME")
+	var dirs []string
+	if dataHome == "" {
+		home, err := os.UserHomeDir()
 		if err == nil {
-			fallbackLocations = append(fallbackLocations, filepath.Join(homeDir, ".local/share"))
+			dataHome = filepath.Join(home, ".local/share")
+			dirs = []string{dataHome}
 		}
-		fallbackLocations = append(fallbackLocations, "/usr/local/share")
-		fallbackLocations = append(fallbackLocations, "/usr/share")
-		return fallbackLocations
+	} else {
+		dirs = []string{dataHome}
 	}
-	return locationLookup
+	dataDirs := os.Getenv("XDG_DATA_DIRS")
+	if dataDirs == "" {
+		dataDirs = "/usr/local/share/:/usr/share/"
+	}
+	dirs = append(dirs, strings.Split(dataDirs, ":")...)
+	return dirs
 }

@@ -6,10 +6,22 @@ import (
 	"fyne.io/fyne/v2"
 )
 
-//go:embed img/background.jpg
-var backgroundJpg []byte
+//go:embed assets/background-light.png
+var backgroundLight []byte
+//go:embed assets/background-dark.png
+var backgroundDark []byte
+//go:embed assets/power.svg
+var powerSVG []byte
 
-var resourceBackgroundJpg = &fyne.StaticResource{
-	StaticName:    "background.jpg",
-	StaticContent: backgroundJpg,
+var resourceBackgroundDarkPng = &fyne.StaticResource{
+	StaticName: "background-dark.png",
+	StaticContent: backgroundDark,
+}
+var resourceBackgroundLightPng = &fyne.StaticResource{
+	StaticName: "background-light.png",
+	StaticContent: backgroundLight,
+}
+var resourcePowerSvg = &fyne.StaticResource{
+	StaticName: "power.svg",
+	StaticContent: powerSVG,
 }
