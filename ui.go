@@ -339,9 +339,9 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	bg := canvas.NewRectangle(theme.ButtonColor())
 	bg.CornerRadius = theme.InputRadiusSize()
 	clipper := canvas.NewRectangle(color.Transparent)
-	clipper.StrokeWidth = theme.InputRadiusSize()*1.25
+	clipper.StrokeWidth = theme.InputRadiusSize() * 1.25
 	clipper.StrokeColor = theme.OverlayBackgroundColor()
-	clipper.CornerRadius = theme.InputRadiusSize()*2
+	clipper.CornerRadius = theme.InputRadiusSize() * 2
 	img := container.NewStack(bg, tapper, ava, negativePad(clipper), border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
@@ -360,7 +360,7 @@ func startSettingsListener(settings chan fyne.Settings, c *fyne.Container, box *
 	}
 }
 
-type logoPositioner struct {}
+type logoPositioner struct{}
 
 func (l *logoPositioner) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 	logoSize := float32(120)
@@ -377,7 +377,7 @@ func positionLogo(logo fyne.CanvasObject) fyne.CanvasObject {
 	return container.New(&logoPositioner{}, logo)
 }
 
-type negativePadder struct {}
+type negativePadder struct{}
 
 func (n *negativePadder) Layout(objects []fyne.CanvasObject, size fyne.Size) {
 	for _, o := range objects {
