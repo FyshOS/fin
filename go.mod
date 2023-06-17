@@ -1,6 +1,6 @@
 module fyshos.com/fin
 
-go 1.15
+go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.3.6-0.20230616050133-93998baf1426
