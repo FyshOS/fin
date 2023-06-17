@@ -9,10 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testHostname() string {
-	return "test"
-}
-
 func emptyUsers() []string {
 	return nil
 }
