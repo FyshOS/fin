@@ -40,15 +40,14 @@ type ui struct {
 	session *widget.Select
 	err     *canvas.Text
 
-	hostname func() string
 	user     string
 	users    func() []string
 	sessions []*session
 	pref     fyne.Preferences
 }
 
-func newUI(w fyne.Window, p fyne.Preferences, host func() string, users func() []string) *ui {
-	return &ui{win: w, hostname: host, pref: p, sessions: loadSessions(), users: users}
+func newUI(w fyne.Window, p fyne.Preferences, users func() []string) *ui {
+	return &ui{win: w, pref: p, sessions: loadSessions(), users: users}
 }
 
 func (u *ui) askShutdown() {

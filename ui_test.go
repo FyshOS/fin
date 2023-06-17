@@ -23,7 +23,7 @@ func TestUI(t *testing.T) {
 	window := test.NewWindow(nil)
 	defer window.Close()
 
-	ui := newUI(window, a.Preferences(), testHostname, emptyUsers)
+	ui := newUI(window, a.Preferences(), emptyUsers)
 	ui.loadUI()
 	window.Resize(window.Content().MinSize().Add(fyne.NewSize(100, 100)))
 
@@ -32,7 +32,7 @@ func TestUI(t *testing.T) {
 
 func TestUI_EnterLogin(t *testing.T) {
 	w := test.NewWindow(nil)
-	ui := newUI(w, test.NewApp().Preferences(), testHostname, emptyUsers)
+	ui := newUI(w, test.NewApp().Preferences(), emptyUsers)
 	ui.loadUI()
 
 	w.Canvas().Focus(ui.pass)
@@ -42,7 +42,7 @@ func TestUI_EnterLogin(t *testing.T) {
 
 func TestUI_Focus(t *testing.T) {
 	w := test.NewWindow(nil)
-	ui := newUI(w, test.NewApp().Preferences(), testHostname, emptyUsers)
+	ui := newUI(w, test.NewApp().Preferences(), emptyUsers)
 	ui.loadUI()
 
 	w.Canvas().FocusNext()
@@ -51,7 +51,7 @@ func TestUI_Focus(t *testing.T) {
 
 func TestUI_RequireFields(t *testing.T) {
 	w := test.NewWindow(nil)
-	ui := newUI(w, test.NewApp().Preferences(), testHostname, emptyUsers)
+	ui := newUI(w, test.NewApp().Preferences(), emptyUsers)
 	ui.loadUI()
 
 	assert.Zero(t, ui.err.Text)
