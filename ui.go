@@ -1,3 +1,5 @@
+//go:generate fyne bundle -o bundled.go assets
+
 package main
 
 import (
@@ -184,11 +186,11 @@ func (u *ui) loadUI() {
 		avatars = append(avatars, ava)
 	}
 
+	logo := canvas.NewImageFromResource(resourceFyshPng)
 	c := container.NewMax(bg)
 	u.win.SetContent(container.NewMax(c,
 		container.NewCenter(container.NewMax(box, container.NewVBox(
-			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-			widget.NewSeparator(),
+			positionLogo(logo),
 
 			container.NewMax(widget.NewLabel(""), u.err),
 			container.NewCenter(container.NewHBox(avatars...)),
@@ -361,6 +363,23 @@ func startSettingsListener(settings chan fyne.Settings, c *fyne.Container, box *
 		box.FillColor = boxBackgroundColor(s)
 		box.Refresh()
 	}
+}
+
+type logoPositioner struct {}
+
+func (l *logoPositioner) Layout(objects []fyne.CanvasObject, size fyne.Size) {
+	logoSize := float32(120)
+	logo := objects[0]
+	logo.Resize(fyne.NewSize(logoSize, logoSize))
+	logo.Move(fyne.NewPos((size.Width-logoSize)/2, -72))
+}
+
+func (l *logoPositioner) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	return fyne.Size{}
+}
+
+func positionLogo(logo fyne.CanvasObject) fyne.CanvasObject {
+	return container.New(&logoPositioner{}, logo)
 }
 
 type negativePadder struct {}
