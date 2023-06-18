@@ -5,7 +5,6 @@ package main
 import (
 	"fmt"
 	"image/color"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -70,7 +69,8 @@ func (u *ui) askShutdown() {
 		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
 			pop.Hide()
 		}),
-		reboot, shutdown}
+		reboot, shutdown,
+	}
 
 	d := dialog.NewCustom("Shutdown", "Cancel", message, u.win)
 	d.SetButtons(buttons)
@@ -295,7 +295,7 @@ func getScreenSize() (uint16, uint16) {
 }
 
 func getUsers() []string {
-	data, err := ioutil.ReadFile("/etc/passwd")
+	data, err := os.ReadFile("/etc/passwd")
 	if err != nil {
 		fyne.LogError("Failed to read password", err)
 		return []string{""}
