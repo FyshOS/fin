@@ -1,3 +1,5 @@
+//go:generate fyne bundle -o bundled.go assets
+
 package main
 
 import (
@@ -12,6 +14,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/FyshOS/backgrounds/builtin"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -36,15 +40,14 @@ type ui struct {
 	session *widget.Select
 	err     *canvas.Text
 
-	hostname func() string
 	user     string
 	users    func() []string
 	sessions []*session
 	pref     fyne.Preferences
 }
 
-func newUI(w fyne.Window, p fyne.Preferences, host func() string, users func() []string) *ui {
-	return &ui{win: w, hostname: host, pref: p, sessions: loadSessions(), users: users}
+func newUI(w fyne.Window, p fyne.Preferences, users func() []string) *ui {
+	return &ui{win: w, pref: p, sessions: loadSessions(), users: users}
 }
 
 func (u *ui) askShutdown() {
@@ -158,17 +161,16 @@ func (u *ui) loadUI() {
 		widget.NewButtonWithIcon("Shutdown", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
 		login)
 
-	bg := canvas.NewImageFromResource(backgroundDark)
-	if fyne.CurrentApp().Settings().ThemeVariant() == theme.VariantLight {
-		bg.Resource = backgroundLight
-	}
+	set := fyne.CurrentApp().Settings()
+	b := &builtin.Builtin{}
+	bg := b.Load(set.Theme(), set.ThemeVariant())
 	box := canvas.NewRectangle(boxBackgroundColor(fyne.CurrentApp().Settings()))
 
 	var avatars []fyne.CanvasObject
 	for _, name := range users {
 		ava := newAvatar(name, func(user string) {
 			for _, a := range avatars {
-				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[2].(*canvas.Rectangle)
+				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[4].(*canvas.Rectangle)
 				border.StrokeColor = theme.ShadowColor()
 				border.Refresh()
 			}
@@ -179,10 +181,11 @@ func (u *ui) loadUI() {
 		avatars = append(avatars, ava)
 	}
 
-	u.win.SetContent(container.NewStack(bg,
+	logo := canvas.NewImageFromResource(resourceFyshPng)
+	c := container.NewStack(bg) // in a container so we can update the bg
+	u.win.SetContent(container.NewStack(c,
 		container.NewCenter(container.NewStack(box, container.NewVBox(
-			widget.NewLabelWithStyle("Log in to "+u.hostname(), fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
-			widget.NewSeparator(),
+			positionLogo(logo),
 
 			container.NewStack(widget.NewLabel(""), u.err),
 			container.NewCenter(container.NewHBox(avatars...)),
@@ -210,7 +213,7 @@ func (u *ui) loadUI() {
 
 	listener := make(chan fyne.Settings)
 	fyne.CurrentApp().Settings().AddChangeListener(listener)
-	go startSettingsListener(listener, bg, box)
+	go startSettingsListener(listener, c, box)
 }
 
 func (u *ui) sessionNames() []string {
@@ -320,8 +323,9 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	if _, err := os.Stat(facePath); err == nil {
 		ava = canvas.NewImageFromFile(facePath)
 	}
-	ava.SetMinSize(fyne.NewSize(120, 120))
+	ava.SetMinSize(fyne.NewSize(112, 112))
 	border := canvas.NewRectangle(color.Transparent)
+	border.CornerRadius = theme.InputRadiusSize()
 	border.StrokeWidth = theme.InputBorderSize()
 	border.StrokeColor = theme.ShadowColor()
 
@@ -332,22 +336,61 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	})
 	tapper.Importance = widget.LowImportance
 
-	img := container.NewStack(tapper, ava, border)
+	bg := canvas.NewRectangle(theme.ButtonColor())
+	bg.CornerRadius = theme.InputRadiusSize()
+	clipper := canvas.NewRectangle(color.Transparent)
+	clipper.StrokeWidth = theme.InputRadiusSize() * 1.25
+	clipper.StrokeColor = theme.OverlayBackgroundColor()
+	clipper.CornerRadius = theme.InputRadiusSize() * 2
+	img := container.NewStack(bg, tapper, ava, negativePad(clipper), border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
 }
 
-func startSettingsListener(settings chan fyne.Settings, bg *canvas.Image, box *canvas.Rectangle) {
+func startSettingsListener(settings chan fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
 	for s := range settings {
-		if s.ThemeVariant() == theme.VariantLight {
-			bg.Resource = backgroundLight
-		} else {
-			bg.Resource = backgroundDark
-		}
-		bg.Refresh()
+		b := &builtin.Builtin{}
+		bg := b.Load(s.Theme(), s.ThemeVariant())
+		c.Objects[0] = bg
+		c.Refresh()
 
 		box.FillColor = boxBackgroundColor(s)
 		box.Refresh()
 	}
+}
+
+type logoPositioner struct{}
+
+func (l *logoPositioner) Layout(objects []fyne.CanvasObject, size fyne.Size) {
+	logoSize := float32(120)
+	logo := objects[0]
+	logo.Resize(fyne.NewSize(logoSize, logoSize))
+	logo.Move(fyne.NewPos((size.Width-logoSize)/2, -72))
+}
+
+func (l *logoPositioner) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	return fyne.Size{}
+}
+
+func positionLogo(logo fyne.CanvasObject) fyne.CanvasObject {
+	return container.New(&logoPositioner{}, logo)
+}
+
+type negativePadder struct{}
+
+func (n *negativePadder) Layout(objects []fyne.CanvasObject, size fyne.Size) {
+	for _, o := range objects {
+		o.Move(fyne.NewPos(theme.InputRadiusSize()*-.75, theme.InputRadiusSize()*-.75))
+		o.Resize(size.AddWidthHeight(theme.InputRadiusSize()*1.5, theme.InputRadiusSize()*1.5))
+	}
+}
+
+func (n *negativePadder) MinSize(objects []fyne.CanvasObject) fyne.Size {
+	return objects[0].MinSize()
+}
+
+func negativePad(child fyne.CanvasObject) fyne.CanvasObject {
+	unpad := &negativePadder{}
+	return container.New(unpad, child)
 }

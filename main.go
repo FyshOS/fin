@@ -13,15 +13,6 @@ import (
 	"fyne.io/fyne/v2/app"
 )
 
-func hostname() string {
-	host, err := os.Hostname()
-	if err != nil {
-		host = "localhost"
-	}
-
-	return host
-}
-
 func init() {
 	runtime.LockOSThread()
 }
@@ -50,7 +41,7 @@ func main() {
 
 	a := app.NewWithID("com.fyshos.fin")
 	w := a.Driver().CreateWindow("Fin")
-	ui := newUI(w, a.Preferences(), hostname, getUsers)
+	ui := newUI(w, a.Preferences(), getUsers)
 	w.SetPadded(false)
 
 	if display == "" {
