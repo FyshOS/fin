@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,7 +22,7 @@ func loadSessions() []*session {
 	var list []*session
 	for _, dir := range lookupXdgDataDirs() {
 		sessionDir := filepath.Join(dir, "xsessions")
-		files, err := ioutil.ReadDir(sessionDir)
+		files, err := os.ReadDir(sessionDir)
 		if err != nil {
 			continue
 		}
