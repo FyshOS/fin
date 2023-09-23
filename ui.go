@@ -50,29 +50,29 @@ func newUI(w fyne.Window, p fyne.Preferences, users func() []string) *ui {
 }
 
 func (u *ui) askShutdown() {
-	var pop *widget.PopUp
+	var d *dialog.CustomDialog
 	message := widget.NewLabel("Are you sure you want to power off your computer?")
 	message.Alignment = fyne.TextAlignCenter
 
 	reboot := widget.NewButtonWithIcon("Reboot", theme.ViewRefreshIcon(), func() {
-		pop.Hide()
+		d.Hide()
 		_ = exec.Command("shutdown", "-r", "now").Start()
 	})
 	reboot.Importance = widget.WarningImportance
 	shutdown := widget.NewButtonWithIcon("Power off", theme.NewThemedResource(resourcePowerSvg), func() {
-		pop.Hide()
+		d.Hide()
 		_ = exec.Command("shutdown", "-h", "now").Start()
 	})
 	shutdown.Importance = widget.DangerImportance
 
 	buttons := []fyne.CanvasObject{
 		widget.NewButtonWithIcon("Cancel", theme.CancelIcon(), func() {
-			pop.Hide()
+			d.Hide()
 		}),
 		reboot, shutdown,
 	}
 
-	d := dialog.NewCustom("Shutdown", "Cancel", message, u.win)
+	d = dialog.NewCustom("Shutdown", "Cancel", message, u.win)
 	d.SetButtons(buttons)
 	d.Show()
 }
