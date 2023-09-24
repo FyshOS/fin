@@ -202,7 +202,7 @@ func (u *ui) loadUI() {
 			continue
 		}
 
-		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[0].(*widget.Button).Tapped(&fyne.PointEvent{})
+		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Button).Tapped(&fyne.PointEvent{})
 		matched = true
 	}
 	if matched {
