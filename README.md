@@ -30,7 +30,7 @@ instead of PAM, you will need to get the OpenPAM dependency first and set proper
 
 ```shell
 $ doas pkg_add -U openpam
-$ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/display_manager
+$ doas install -Dm00644 /etc/pam.d/system /etc/pam.d/fin
 ```
 
 To run Fin under bare X on system boot, build and install it with commands as following. If you have some other display manager enabled, make sure you disable it first, so it doesn't conflict with Fin. Below we assume that you have got `xenodm`, and disable it explicitly:
@@ -71,9 +71,9 @@ the correct username and password.
 Fin, like most other Display Managers, makes use of PAM, the
 Pluggable Authentication Module system. This requires the
 appropriate rules be in place. The following snippet creates a
-`display_manager` module by copying the login one. It must be
+`fin` module by copying the login one. It must be
 run as `root`:
-`install -Dm00644 /etc/pam.d/login /etc/pam.d/display_manager`
+`install -Dm00644 /etc/pam.d/login /etc/pam.d/fin`
 
 
 ## Audio Issues
