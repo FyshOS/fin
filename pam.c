@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <grp.h>
 
-#define SERVICE_NAME "display_manager"
+#define SERVICE_NAME "fin"
 
 #define err(name)                                   \
     do {                                            \
