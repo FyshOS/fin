@@ -197,6 +197,9 @@ func (u *ui) loadUI() {
 
 	matched := false
 	storedName := u.pref.String(prefUserKey)
+	if storedName == "" && len(users) == 1 {
+		storedName = users[0]
+	}
 	for i, name := range users {
 		if name != storedName {
 			continue
