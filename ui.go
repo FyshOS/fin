@@ -239,13 +239,13 @@ func (u *ui) sessionExec() string {
 func (u *ui) updateForUsername(user string) {
 	home, _ := homedir(user)
 	if _, err := os.Stat(filepath.Join(home, ".xinitrc")); err != nil {
-		if u.sessions[len(u.sessions)-1] == xinitSession {
+		if len(u.sessions) > 0 && u.sessions[len(u.sessions)-1] == xinitSession {
 			u.sessions = u.sessions[:len(u.sessions)-1]
 			u.session.Options = u.sessionNames()
 			u.session.Refresh()
 		}
 	} else {
-		if u.sessions[len(u.sessions)-1] != xinitSession {
+		if len(u.sessions) > 0 && u.sessions[len(u.sessions)-1] != xinitSession {
 			u.sessions = append(u.sessions, xinitSession)
 			u.session.Options = u.sessionNames()
 			u.session.Refresh()
