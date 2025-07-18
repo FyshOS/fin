@@ -13,6 +13,14 @@ func emptyUsers() []string {
 	return nil
 }
 
+func oneUser() []string {
+	return []string{"user1"}
+}
+
+func twoUsers() []string {
+	return []string{"user1", "user2"}
+}
+
 func TestUI(t *testing.T) {
 	a := test.NewApp()
 	defer test.NewApp()
@@ -43,6 +51,18 @@ func TestUI_Focus(t *testing.T) {
 
 	w.Canvas().FocusNext()
 	assert.Equal(t, ui.pass, w.Canvas().Focused())
+
+	w = test.NewWindow(nil)
+	ui = newUI(w, test.NewApp().Preferences(), oneUser)
+	ui.loadUI()
+
+	assert.Equal(t, ui.pass, w.Canvas().Focused())
+
+	w = test.NewWindow(nil)
+	ui = newUI(w, test.NewApp().Preferences(), twoUsers)
+	ui.loadUI()
+
+	assert.Equal(t, nil, w.Canvas().Focused())
 }
 
 func TestUI_RequireFields(t *testing.T) {
