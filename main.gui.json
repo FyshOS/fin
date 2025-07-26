@@ -1,0 +1,385 @@
+{
+  "Apptrix": {
+    "Version": "1"
+  },
+  "Metadata": {
+    "height": 476,
+    "padded": false,
+    "title": "Fin",
+    "width": 775
+  },
+  "Screens": [
+    {
+      "Object": {
+        "Type": "*fyne.Container",
+        "Layout": "Stack",
+        "Objects": [
+          {
+            "Type": "*canvas.Image",
+            "Name": "bg",
+            "Struct": {
+              "Hidden": false,
+              "File": "/home/andy/Code/FyshOS/fin/assets/bg-dark.svg",
+              "Resource": null,
+              "Image": null,
+              "Translucency": 0,
+              "FillMode": 0,
+              "ScaleMode": 0
+            },
+            "Properties": {
+              "minWidth": ""
+            }
+          },
+          {
+            "Type": "*fyne.Container",
+            "Layout": "Center",
+            "Objects": [
+              {
+                "Type": "*fyne.Container",
+                "Layout": "Stack",
+                "Objects": [
+                  {
+                    "Type": "*canvas.Rectangle",
+                    "Name": "box",
+                    "Struct": {
+                      "Hidden": false,
+                      "FillColor": {
+                        "R": 12,
+                        "G": 12,
+                        "B": 12,
+                        "A": 170
+                      },
+                      "StrokeColor": {
+                        "R": 0,
+                        "G": 0,
+                        "B": 0,
+                        "A": 0
+                      },
+                      "StrokeWidth": 0,
+                      "CornerRadius": 8,
+                      "Aspect": 0
+                    }
+                  },
+                  {
+                    "Type": "*fyne.Container",
+                    "Layout": "Stack",
+                    "Objects": [
+                      {
+                        "Type": "*fyne.Container",
+                        "Layout": "CustomPadded",
+                        "Objects": [
+                          {
+                            "Type": "*canvas.Image",
+                            "Name": "logo",
+                            "Struct": {
+                              "Hidden": false,
+                              "File": "/home/andy/Code/FyshOS/fin/assets/fysh.png",
+                              "Resource": null,
+                              "Image": null,
+                              "Translucency": 0,
+                              "FillMode": 1,
+                              "ScaleMode": 0
+                            },
+                            "Properties": {
+                              "minHeight": "82",
+                              "minWidth": "82"
+                            }
+                          }
+                        ],
+                        "Properties": {
+                          "bottom": "0",
+                          "layout": "CustomPadded",
+                          "left": "96",
+                          "right": "96",
+                          "top": "-368"
+                        }
+                      }
+                    ],
+                    "Properties": {
+                      "layout": "Stack"
+                    }
+                  },
+                  {
+                    "Type": "*fyne.Container",
+                    "Layout": "CustomPadded",
+                    "Objects": [
+                      {
+                        "Type": "*fyne.Container",
+                        "Layout": "Border",
+                        "Objects": [
+                          {
+                            "Type": "*container.Scroll",
+                            "Struct": {
+                              "Content": {
+                                "Type": "*fyne.Container",
+                                "Layout": "Center",
+                                "Objects": [
+                                  {
+                                    "Type": "*fyne.Container",
+                                    "Layout": "Grid",
+                                    "Name": "avatars",
+                                    "Objects": [
+                                      {
+                                        "Type": "*fyne.Container",
+                                        "Layout": "VBox",
+                                        "Objects": [
+                                          {
+                                            "Type": "*fyne.Container",
+                                            "Layout": "VBox",
+                                            "Objects": [
+                                              {
+                                                "Type": "*fyne.Container",
+                                                "Layout": "CustomPadded",
+                                                "Objects": [
+                                                  {
+                                                    "Type": "*canvas.Image",
+                                                    "Struct": {
+                                                      "Hidden": false,
+                                                      "File": "",
+                                                      "Resource": "AccountIcon",
+                                                      "Image": null,
+                                                      "Translucency": 0,
+                                                      "FillMode": 1,
+                                                      "ScaleMode": 0
+                                                    },
+                                                    "Properties": {
+                                                      "minHeight": "112",
+                                                      "minWidth": "112"
+                                                    }
+                                                  },
+                                                  {
+                                                    "Type": "*canvas.Rectangle",
+                                                    "Struct": {
+                                                      "Hidden": false,
+                                                      "FillColor": {
+                                                        "R": 0,
+                                                        "G": 0,
+                                                        "B": 0,
+                                                        "A": 0
+                                                      },
+                                                      "StrokeColor": {
+                                                        "R": 192,
+                                                        "G": 192,
+                                                        "B": 192,
+                                                        "A": 255
+                                                      },
+                                                      "StrokeWidth": 2,
+                                                      "CornerRadius": 0,
+                                                      "Aspect": 0
+                                                    }
+                                                  }
+                                                ],
+                                                "Properties": {
+                                                  "bottom": "-8",
+                                                  "layout": "CustomPadded",
+                                                  "left": "0",
+                                                  "right": "0",
+                                                  "top": "0"
+                                                }
+                                              },
+                                              {
+                                                "Type": "*widget.Label",
+                                                "Struct": {
+                                                  "Hidden": false,
+                                                  "Text": "user",
+                                                  "Alignment": 1,
+                                                  "Wrapping": 0,
+                                                  "TextStyle": {
+                                                    "Bold": true,
+                                                    "Italic": false,
+                                                    "Monospace": false,
+                                                    "Symbol": false,
+                                                    "TabWidth": 0,
+                                                    "Underline": false
+                                                  },
+                                                  "Truncation": 0,
+                                                  "Importance": 0,
+                                                  "SizeName": "",
+                                                  "Selectable": false
+                                                }
+                                              }
+                                            ],
+                                            "Properties": {
+                                              "dir": "vertical",
+                                              "layout": "VBox"
+                                            }
+                                          }
+                                        ],
+                                        "Properties": {
+                                          "dir": "vertical",
+                                          "layout": "VBox"
+                                        }
+                                      }
+                                    ],
+                                    "Properties": {
+                                      "count": "1",
+                                      "grid_type": "Rows",
+                                      "layout": "Grid",
+                                      "name": "avatars"
+                                    }
+                                  }
+                                ],
+                                "Properties": {
+                                  "count": "1",
+                                  "grid_type": "Rows",
+                                  "layout": "Center",
+                                  "name": ""
+                                }
+                              },
+                              "Direction": 1
+                            }
+                          },
+                          {
+                            "Type": "*fyne.Container",
+                            "Layout": "VBox",
+                            "Objects": [
+                              {
+                                "Type": "*widget.Form",
+                                "Name": "form",
+                                "Struct": {
+                                  "CancelText": "Cancel",
+                                  "Hidden": false,
+                                  "Items": [
+                                    {
+                                      "HintText": "",
+                                      "Text": "Password",
+                                      "Widget": {
+                                        "Type": "*widget.Entry",
+                                        "Struct": {
+                                          "Hidden": false,
+                                          "Text": "",
+                                          "TextStyle": {
+                                            "Bold": false,
+                                            "Italic": false,
+                                            "Monospace": false,
+                                            "Symbol": false,
+                                            "TabWidth": 0,
+                                            "Underline": false
+                                          },
+                                          "PlaceHolder": "",
+                                          "Password": true,
+                                          "MultiLine": false,
+                                          "Wrapping": 1,
+                                          "Scroll": 0,
+                                          "AlwaysShowValidationError": false,
+                                          "CursorRow": 0,
+                                          "CursorColumn": 0
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "HintText": "",
+                                      "Text": "Session",
+                                      "Widget": {
+                                        "Type": "*widget.Select",
+                                        "Struct": {
+                                          "Hidden": false,
+                                          "Alignment": 0,
+                                          "Selected": "",
+                                          "Options": [
+                                            "Option 1",
+                                            "Option 2"
+                                          ],
+                                          "PlaceHolder": "(Select one)"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "SubmitText": "Submit"
+                                },
+                                "Properties": {
+                                  "hideButtons": "true",
+                                  "name": "form"
+                                }
+                              },
+                              {
+                                "Type": "*fyne.Container",
+                                "Layout": "Grid",
+                                "Objects": [
+                                  {
+                                    "Type": "*widget.Button",
+                                    "Name": "shutdown",
+                                    "Actions": {
+                                      "OnTapped": "g.shutdownTapped"
+                                    },
+                                    "Struct": {
+                                      "Hidden": false,
+                                      "Text": "Shutdown",
+                                      "Icon": "ContentClearIcon",
+                                      "Importance": 0,
+                                      "Alignment": 0,
+                                      "IconPlacement": 0
+                                    },
+                                    "Properties": {
+                                      "OnTapped": "g.shutdownTapped"
+                                    }
+                                  },
+                                  {
+                                    "Type": "*widget.Button",
+                                    "Actions": {
+                                      "OnTapped": "g.loginTapped"
+                                    },
+                                    "Struct": {
+                                      "Hidden": false,
+                                      "Text": "Log In",
+                                      "Icon": "LoginIcon",
+                                      "Importance": 1,
+                                      "Alignment": 0,
+                                      "IconPlacement": 0
+                                    },
+                                    "Properties": {
+                                      "OnTapped": "g.loginTapped"
+                                    }
+                                  }
+                                ],
+                                "Properties": {
+                                  "layout": "Grid"
+                                }
+                              }
+                            ],
+                            "Properties": {
+                              "dir": "vertical",
+                              "layout": "VBox"
+                            }
+                          }
+                        ],
+                        "Properties": {
+                          "bottom": "1",
+                          "dir": "vertical",
+                          "layout": "Border",
+                          "left": "",
+                          "name": "",
+                          "right": "",
+                          "top": ""
+                        }
+                      }
+                    ],
+                    "Properties": {
+                      "bottom": "42",
+                      "layout": "CustomPadded",
+                      "left": "42",
+                      "name": "",
+                      "right": "42",
+                      "top": "42"
+                    }
+                  }
+                ],
+                "Properties": {
+                  "layout": "Stack"
+                }
+              }
+            ],
+            "Properties": {
+              "layout": "Center"
+            }
+          }
+        ],
+        "Properties": {
+          "dir": "vertical",
+          "layout": "Stack"
+        }
+      },
+      "Name": ""
+    }
+  ]
+}

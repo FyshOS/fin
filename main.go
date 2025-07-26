@@ -13,6 +13,8 @@ import (
 	"fyne.io/fyne/v2/app"
 )
 
+var askShutdown, doLogin func()
+
 func init() {
 	runtime.LockOSThread()
 }
@@ -40,9 +42,20 @@ func main() {
 	}
 
 	a := app.NewWithID("com.fyshos.fin")
-	w := a.Driver().CreateWindow("Fin")
-	ui := newUI(w, a.Preferences(), getUsers)
+	w := a.NewWindow("Fin")
+	g := newGUI()
+	g.win = w
+	w.Resize(fyne.NewSize(771, 476))
 	w.SetPadded(false)
+	w.SetContent(g.makeUI())
+
+	ui := newUI(g, a.Preferences(), getUsers)
+	askShutdown = func() {
+		ui.askShutdown()
+	}
+	doLogin = func() {
+		ui.doLogin()
+	}
 
 	if display == "" {
 		screenW, screenH := getScreenSize()
@@ -57,11 +70,10 @@ func main() {
 			w.Resize(fyne.NewSize(float32(screenW)/scale, float32(screenH)/scale))
 		}()
 		w.Resize(fyne.NewSize(float32(screenW), float32(screenH)))
-		ui.loadUI()
 	} else {
-		ui.loadUI()
 		w.Resize(fyne.NewSize(1280, 720))
 	}
+	ui.loadUI()
 	w.ShowAndRun()
 
 	if xPID != 0 {
@@ -90,4 +102,12 @@ func stopX(pid int) {
 	}
 
 	_ = p.Kill()
+}
+
+func (g *gui) shutdownTapped() {
+	askShutdown()
+}
+
+func (g *gui) loginTapped() {
+	doLogin()
 }

@@ -3,8 +3,7 @@ module fyshos.com/fin
 go 1.17
 
 require (
-	fyne.io/fyne/v2 v2.6.1
-	github.com/FyshOS/backgrounds v0.0.0-20230702072254-f09024611611
+	fyne.io/fyne/v2 v2.6.1-rc1.0.20250725192732-8895a9e01fe3
 	github.com/jezek/xgb v1.0.1
 	github.com/stretchr/testify v1.10.0
 )

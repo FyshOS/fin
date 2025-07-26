@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"image/color"
 	"log"
@@ -14,12 +15,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FyshOS/backgrounds/builtin"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 
@@ -34,10 +34,9 @@ const (
 )
 
 type ui struct {
-	win     fyne.Window
+	gen     *gui
 	pass    *widget.Entry
 	session *widget.Select
-	err     *canvas.Text
 
 	user     string
 	users    func() []string
@@ -45,8 +44,8 @@ type ui struct {
 	pref     fyne.Preferences
 }
 
-func newUI(w fyne.Window, p fyne.Preferences, users func() []string) *ui {
-	return &ui{win: w, pref: p, sessions: loadSessions(), users: users}
+func newUI(g *gui, p fyne.Preferences, users func() []string) *ui {
+	return &ui{gen: g, pref: p, sessions: loadSessions(), users: users}
 }
 
 func (u *ui) askShutdown() {
@@ -72,14 +71,14 @@ func (u *ui) askShutdown() {
 		reboot, shutdown,
 	}
 
-	d = dialog.NewCustom("Shutdown", "Cancel", message, u.win)
+	d = dialog.NewCustom("Shutdown", "Cancel", message, u.gen.win)
 	d.SetButtons(buttons)
 	d.Show()
 }
 
 func (u *ui) doLogin() {
 	if u.user == "" || u.pass.Text == "" {
-		u.setError("Missing username or password")
+		dialog.ShowError(errors.New("missing username or password"), u.gen.win)
 		return
 	}
 	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user), u.session.Selected)
@@ -88,13 +87,13 @@ func (u *ui) doLogin() {
 	go func() {
 		pid, err := login(u.user, u.pass.Text, u.sessionExec())
 		if err != nil {
-			u.setError(err.Error())
+			dialog.ShowError(err, u.gen.win)
 			return
 		}
 		proc, err := os.FindProcess(pid)
 		if err != nil {
-			u.setError(err.Error())
-			u.win.Show()
+			dialog.ShowError(err, u.gen.win)
+			u.gen.win.Show()
 			return
 		}
 
@@ -107,14 +106,13 @@ func (u *ui) doLogin() {
 			_ = os.Chown("/dev/dri/renderD128", uid, -1)
 		}
 
-		u.win.Hide()
+		u.gen.win.Hide()
 		_, _ = proc.Wait()
 
-		u.win.Show()
+		u.gen.win.Show()
 		_ = logout()
 		u.pass.SetText("")
-		u.win.Canvas().Focus(u.pass)
-		u.setError("")
+		u.gen.win.Canvas().Focus(u.pass)
 
 		// OpenBSD: give device ownership back to root
 		if runtime.GOOS == "openbsd" {
@@ -125,46 +123,18 @@ func (u *ui) doLogin() {
 	}()
 }
 
-func (u *ui) setError(err string) {
-	u.err.Text = err
-	u.err.Refresh()
-}
-
 func (u *ui) loadUI() {
-	u.pass = widget.NewPasswordEntry()
+	u.pass = u.gen.form.Items[0].Widget.(*widget.Entry)
 	u.pass.OnSubmitted = func(string) {
-		u.win.Canvas().Focus(nil)
+		u.gen.win.Canvas().Focus(nil)
 		u.doLogin()
 	}
-	u.session = widget.NewSelect(u.sessionNames(), func(string) {})
-	u.err = canvas.NewText("", theme.ErrorColor())
-	u.err.Alignment = fyne.TextAlignCenter
+	u.session = u.gen.form.Items[1].Widget.(*widget.Select)
+	u.session.Options = u.sessionNames()
 
 	users := u.users()
-	var formItems []*widget.FormItem
-	if len(users) == 0 {
-		user := widget.NewEntry()
-		user.OnChanged = func(user string) {
-			u.user = user
-		}
-
-		formItems = append(formItems, widget.NewFormItem("Username", user))
-	}
-
-	formItems = append(formItems,
-		widget.NewFormItem("Password", u.pass),
-		widget.NewFormItem("Session", u.session))
-	f := widget.NewForm(formItems...)
-	login := widget.NewButtonWithIcon("Log In", theme.LoginIcon(), u.doLogin)
-	login.Importance = widget.HighImportance
-	buttons := container.NewGridWithColumns(2,
-		widget.NewButtonWithIcon("Shutdown", theme.NewThemedResource(resourcePowerSvg), u.askShutdown),
-		login)
-
-	set := fyne.CurrentApp().Settings()
-	b := &builtin.Builtin{}
-	bg := b.Load(set.Theme(), set.ThemeVariant())
-	box := canvas.NewRectangle(boxBackgroundColor(fyne.CurrentApp().Settings()))
+	u.gen.shutdown.SetIcon(theme.NewThemedResource(resourcePowerSvg))
+	u.gen.logo.Resource = resourceFyshPng
 
 	var avatars []fyne.CanvasObject
 	for _, name := range users {
@@ -176,24 +146,11 @@ func (u *ui) loadUI() {
 			}
 			u.user = user
 			u.updateForUsername(user)
-			u.win.Canvas().Focus(u.pass)
+			u.gen.win.Canvas().Focus(u.pass)
 		})
 		avatars = append(avatars, ava)
 	}
-
-	logo := canvas.NewImageFromResource(resourceFyshPng)
-	c := container.NewStack(bg) // in a container so we can update the bg
-	u.win.SetContent(container.NewStack(c,
-		container.NewCenter(container.NewStack(box, container.NewVBox(
-			positionLogo(logo),
-
-			container.NewStack(widget.NewLabel(""), u.err),
-			container.NewCenter(container.NewHBox(avatars...)),
-			container.NewBorder(nil, nil, widget.NewLabel("     "), widget.NewLabel("     "),
-				container.NewVBox(f, buttons)),
-			widget.NewLabel(""),
-		))),
-	))
+	u.gen.avatars.Objects = avatars
 
 	matched := false
 	storedName := u.pref.String(prefUserKey)
@@ -209,14 +166,13 @@ func (u *ui) loadUI() {
 		matched = true
 	}
 	if matched {
-		u.win.Canvas().Focus(u.pass)
-	} else if len(users) == 0 {
-		u.win.Canvas().Focus(formItems[0].Widget.(*widget.Entry))
+		u.gen.win.Canvas().Focus(u.pass)
 	}
 
-	listener := make(chan fyne.Settings)
-	fyne.CurrentApp().Settings().AddChangeListener(listener)
-	go startSettingsListener(listener, c, box)
+	fyne.CurrentApp().Settings().AddListener(func(s fyne.Settings) {
+		settingsListener(s, u.gen.bg, u.gen.box)
+	})
+	settingsListener(fyne.CurrentApp().Settings(), u.gen.bg, u.gen.box)
 }
 
 func (u *ui) sessionNames() []string {
@@ -345,55 +301,23 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	clipper.StrokeWidth = theme.InputRadiusSize() * 1.25
 	clipper.StrokeColor = theme.OverlayBackgroundColor()
 	clipper.CornerRadius = theme.InputRadiusSize() * 2
-	img := container.NewStack(bg, tapper, ava, negativePad(clipper), border)
+	negativePad := theme.InputRadiusSize() * -.75
+	img := container.NewStack(bg, tapper, ava, container.New(layout.NewCustomPaddedLayout(
+		negativePad, negativePad, negativePad, negativePad), clipper), border)
 	return container.NewVBox(img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
 }
 
-func startSettingsListener(settings chan fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
-	for s := range settings {
-		b := &builtin.Builtin{}
-		bg := b.Load(s.Theme(), s.ThemeVariant())
-		c.Objects[0] = bg
-		c.Refresh()
-
-		box.FillColor = boxBackgroundColor(s)
-		box.Refresh()
+func settingsListener(s fyne.Settings, c *canvas.Image, box *canvas.Rectangle) {
+	switch s.ThemeVariant() {
+	case theme.VariantLight:
+		c.Resource = resourceBgLight
+	default:
+		c.Resource = resourceBgDark
 	}
-}
+	c.Refresh()
 
-type logoPositioner struct{}
-
-func (l *logoPositioner) Layout(objects []fyne.CanvasObject, size fyne.Size) {
-	logoSize := float32(120)
-	logo := objects[0]
-	logo.Resize(fyne.NewSize(logoSize, logoSize))
-	logo.Move(fyne.NewPos((size.Width-logoSize)/2, -72))
-}
-
-func (l *logoPositioner) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	return fyne.Size{}
-}
-
-func positionLogo(logo fyne.CanvasObject) fyne.CanvasObject {
-	return container.New(&logoPositioner{}, logo)
-}
-
-type negativePadder struct{}
-
-func (n *negativePadder) Layout(objects []fyne.CanvasObject, size fyne.Size) {
-	for _, o := range objects {
-		o.Move(fyne.NewPos(theme.InputRadiusSize()*-.75, theme.InputRadiusSize()*-.75))
-		o.Resize(size.AddWidthHeight(theme.InputRadiusSize()*1.5, theme.InputRadiusSize()*1.5))
-	}
-}
-
-func (n *negativePadder) MinSize(objects []fyne.CanvasObject) fyne.Size {
-	return objects[0].MinSize()
-}
-
-func negativePad(child fyne.CanvasObject) fyne.CanvasObject {
-	unpad := &negativePadder{}
-	return container.New(unpad, child)
+	box.FillColor = boxBackgroundColor(s)
+	box.Refresh()
 }
