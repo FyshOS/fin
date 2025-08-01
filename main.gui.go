@@ -17,12 +17,12 @@ import (
 type gui struct {
 	win fyne.Window
 
-	bg       *canvas.Image
 	box      *canvas.Rectangle
 	form     *widget.Form
 	logo     *canvas.Image
 	shutdown *widget.Button
 	avatars  *fyne.Container
+	bg       *fyne.Container
 }
 
 func newGUI() *gui {
@@ -30,8 +30,7 @@ func newGUI() *gui {
 }
 
 func (g *gui) makeUI() fyne.CanvasObject {
-	g.bg = canvas.NewImageFromFile("/home/andy/Code/FyshOS/fin/assets/bg-dark.svg")
-	g.box = &canvas.Rectangle{FillColor: &color.NRGBA{R: 0xc, G: 0xc, B: 0xc, A: 0xaa}, StrokeColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeWidth: 0, CornerRadius: 8, Aspect: 0}
+	g.box = &canvas.Rectangle{FillColor: &color.NRGBA{R: 0xc, G: 0xc, B: 0xc, A: 0xaa}, StrokeColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeWidth: 0, CornerRadius: 8}
 	g.form = &widget.Form{Items: []*widget.FormItem{widget.NewFormItem("Password",
 		&widget.Entry{Text: "", PlaceHolder: "", MultiLine: false, Password: true}), widget.NewFormItem("Session",
 		widget.NewSelect([]string{"Option 1", "Option 2"}, func(s string) {}))}}
@@ -40,7 +39,7 @@ func (g *gui) makeUI() fyne.CanvasObject {
 		img.SetMinSize(fyne.Size{Width: 82, Height: 82})
 		return img
 	}()
-	g.shutdown = widget.NewButtonWithIcon("Shutdown", theme.ContentClearIcon(), g.shutdownTapped)
+	g.shutdown = widget.NewButtonWithIcon("Shutdown", theme.CancelIcon(), g.shutdownTapped)
 	g.avatars = container.NewGridWithRows(1,
 		container.NewVBox(
 			container.NewVBox(
@@ -54,8 +53,10 @@ func (g *gui) makeUI() fyne.CanvasObject {
 						img.SetMinSize(fyne.Size{Width: 112, Height: 112})
 						return img
 					}(),
-					&canvas.Rectangle{FillColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeColor: &color.NRGBA{R: 0xc0, G: 0xc0, B: 0xc0, A: 0xff}, StrokeWidth: 2, CornerRadius: 0, Aspect: 0}),
+					&canvas.Rectangle{FillColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeColor: &color.NRGBA{R: 0xc0, G: 0xc0, B: 0xc0, A: 0xff}, StrokeWidth: 2, CornerRadius: 0}),
 				&widget.Label{Text: "user", TextStyle: fyne.TextStyle{Bold: true, Italic: false, Monospace: false, Symbol: false, TabWidth: 0, Underline: false}, Alignment: 1, Wrapping: 0})))
+	g.bg = container.NewStack(
+		canvas.NewImageFromFile("/home/andy/Code/FyshOS/fin/assets/bg-dark.svg"))
 
 	return container.NewStack(
 		g.bg,

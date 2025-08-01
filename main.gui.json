@@ -15,19 +15,29 @@
         "Layout": "Stack",
         "Objects": [
           {
-            "Type": "*canvas.Image",
+            "Type": "*fyne.Container",
+            "Layout": "Stack",
             "Name": "bg",
-            "Struct": {
-              "Hidden": false,
-              "File": "/home/andy/Code/FyshOS/fin/assets/bg-dark.svg",
-              "Resource": null,
-              "Image": null,
-              "Translucency": 0,
-              "FillMode": 0,
-              "ScaleMode": 0
-            },
+            "Objects": [
+              {
+                "Type": "*canvas.Image",
+                "Struct": {
+                  "Hidden": false,
+                  "File": "/home/andy/Code/FyshOS/fin/assets/bg-dark.svg",
+                  "Resource": null,
+                  "Image": null,
+                  "Translucency": 0,
+                  "FillMode": 0,
+                  "ScaleMode": 0
+                },
+                "Properties": {
+                  "minWidth": ""
+                }
+              }
+            ],
             "Properties": {
-              "minWidth": ""
+              "layout": "Stack",
+              "name": "bg"
             }
           },
           {
@@ -305,7 +315,7 @@
                                     "Struct": {
                                       "Hidden": false,
                                       "Text": "Shutdown",
-                                      "Icon": "ContentClearIcon",
+                                      "Icon": "CancelIcon",
                                       "Importance": 0,
                                       "Alignment": 0,
                                       "IconPlacement": 0

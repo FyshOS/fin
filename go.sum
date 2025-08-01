@@ -39,6 +39,8 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20221208032759-85de2813cf6b/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 fyne.io/fyne/v2 v2.6.1-rc1.0.20250725192732-8895a9e01fe3 h1:PqXpFH+v3lYIz3pzTyKkKDWfkuK3qSh2HCXchLYQFQk=
 fyne.io/fyne/v2 v2.6.1-rc1.0.20250725192732-8895a9e01fe3/go.mod h1:nkjSTnxHOrB+GFg5dDxMsVRSCnkQCONLr8ANrBiXE/Q=
+fyne.io/fyne/v2 v2.6.2 h1:RPgwmXWn+EuP/TKwO7w5p73ILVC26qHD9j3CZUZNwgM=
+fyne.io/fyne/v2 v2.6.2/go.mod h1:9IJ8uWgzfcMossFoUkLiOrUIEtaDvF4nML114WiCtXU=
 fyne.io/systray v1.11.1-0.20250603113521-ca66a66d8b58 h1:eA5/u2XRd8OUkoMqEv3IBlFYSruNlXD8bRHDiqm0VNI=
 fyne.io/systray v1.11.1-0.20250603113521-ca66a66d8b58/go.mod h1:RVwqP9nYMo7h5zViCBHri2FgjXF7H2cub7MAq4NSoLs=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
@@ -46,6 +48,8 @@ github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
+github.com/FyshOS/backgrounds v0.0.0-20250801103510-beb69e83c20b h1:y2k7oFblVrInXbQR81sx64FHcsDABWCHLtBSLLoRE74=
+github.com/FyshOS/backgrounds v0.0.0-20250801103510-beb69e83c20b/go.mod h1:Ona6bJ2L1Sw+exbXfgmBsBZIHXbQ+boDv43xI1C0NVY=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

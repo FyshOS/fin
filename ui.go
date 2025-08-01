@@ -22,6 +22,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/FyshOS/backgrounds"
 
 	"github.com/jezek/xgb"
 	"github.com/jezek/xgb/randr"
@@ -309,13 +310,10 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	)
 }
 
-func settingsListener(s fyne.Settings, c *canvas.Image, box *canvas.Rectangle) {
-	switch s.ThemeVariant() {
-	case theme.VariantLight:
-		c.Resource = resourceBgLight
-	default:
-		c.Resource = resourceBgDark
-	}
+func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
+	b := backgrounds.Default()
+	bg := b.Load(s.Theme(), s.ThemeVariant())
+	c.Objects[0] = bg
 	c.Refresh()
 
 	box.FillColor = boxBackgroundColor(s)

@@ -3,7 +3,7 @@ module fyshos.com/fin
 go 1.17
 
 require (
-	fyne.io/fyne/v2 v2.6.1-rc1.0.20250725192732-8895a9e01fe3
+	fyne.io/fyne/v2 v2.6.2
 	github.com/jezek/xgb v1.0.1
 	github.com/stretchr/testify v1.10.0
 )
@@ -11,6 +11,7 @@ require (
 require (
 	fyne.io/systray v1.11.1-0.20250603113521-ca66a66d8b58 // indirect
 	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/FyshOS/backgrounds v0.0.0-20250801103510-beb69e83c20b // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fredbi/uri v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
