@@ -1,6 +1,5 @@
 [Unit]
 Description=Fin Login Manager
-Conflicts=plymouth-quit.service
 After=systemd-user-sessions.service
 
 [Service]
