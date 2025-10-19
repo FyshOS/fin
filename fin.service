@@ -1,6 +1,7 @@
 [Unit]
 Description=Fin Login Manager
 After=graphical.target
+DefaultDependencies=no
 
 [Service]
 ExecStart=fin
