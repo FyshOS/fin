@@ -1,6 +1,6 @@
 [Unit]
 Description=Fin Login Manager
-After=systemd-user-sessions.service
+After=graphical.target
 
 [Service]
 ExecStart=fin
