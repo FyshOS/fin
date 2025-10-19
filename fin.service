@@ -1,7 +1,7 @@
 [Unit]
 Description=Fin Login Manager
 Conflicts=plymouth-quit.service
-After=systemd-user-sessions.service plymouth-quit.service
+After=systemd-user-sessions.service
 
 [Service]
 ExecStart=/usr/local/bin/fin
