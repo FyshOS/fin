@@ -1,7 +1,6 @@
 [Unit]
 Description=Fin Login Manager
-After=graphical.target
-DefaultDependencies=no
+After=systemd-user-sessions.target
 
 [Service]
 ExecStart=fin
@@ -9,4 +8,4 @@ Restart=always
 
 [Install]
 Alias=display-manager.service
-WantedBy=graphical.target
+WantedBy=multi-user.target
