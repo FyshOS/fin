@@ -85,8 +85,22 @@ func (u *ui) doLogin() {
 	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user), u.session.Selected)
 	u.pref.SetString(prefUserKey, u.user)
 
+	a := widget.NewActivity()
+	prop := canvas.NewRectangle(color.Transparent)
+	prop.SetMinSize(fyne.NewSquareSize(a.MinSize().Width * 2.5))
+	d := dialog.NewCustomWithoutButtons("Logging in...",
+		container.NewStack(prop, a), u.gen.win)
+	a.Start()
+	d.Show()
+
 	go func() {
 		pid, err := login(u.user, u.pass.Text, u.sessionExec())
+
+		fyne.Do(func() {
+			d.Hide()
+			a.Stop()
+		})
+
 		if err != nil {
 			dialog.ShowError(err, u.gen.win)
 			return
