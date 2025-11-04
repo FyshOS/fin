@@ -47,8 +47,8 @@ github.com/BurntSushi/toml v1.4.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/FyshOS/backgrounds v0.0.0-20251013144618-20210a43c572 h1:JKF+xS2rw7QaCtxA+6hPQ309QZYQSq0iZP5H4jc2j7s=
-github.com/FyshOS/backgrounds v0.0.0-20251013144618-20210a43c572/go.mod h1:kKw27b5wnA9VRNamXgHT7RrAQa3niyX4DKO18aR7yII=
+github.com/FyshOS/backgrounds v0.1.0 h1:4VnM1UPFaB1TEWPn0Lfd5xvXoIbECmrNVbzFc0eo/SQ=
+github.com/FyshOS/backgrounds v0.1.0/go.mod h1:kKw27b5wnA9VRNamXgHT7RrAQa3niyX4DKO18aR7yII=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

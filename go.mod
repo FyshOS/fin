@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.7.0
-	github.com/FyshOS/backgrounds v0.0.0-20251013144618-20210a43c572
+	github.com/FyshOS/backgrounds v0.1.0
 	github.com/jezek/xgb v1.1.1
 	github.com/stretchr/testify v1.11.1
 )
