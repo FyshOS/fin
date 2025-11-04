@@ -22,8 +22,8 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/FyshOS/backgrounds"
 
+	"github.com/FyshOS/backgrounds"
 	"github.com/jezek/xgb"
 	"github.com/jezek/xgb/randr"
 	"github.com/jezek/xgb/xproto"
@@ -311,11 +311,27 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 }
 
 func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
-	b := backgrounds.Default()
-	bg := b.Load(s.Theme(), s.ThemeVariant())
-	c.Objects[0] = bg
-	c.Refresh()
+	updateBackground(c, s)
 
 	box.FillColor = boxBackgroundColor(s)
 	box.Refresh()
+}
+
+func updateBackground(c *fyne.Container, s fyne.Settings) {
+	configured := fyne.CurrentApp().Preferences().String("background")
+	var bg fyne.CanvasObject
+	if configured != "" {
+		if stat, err := os.Stat(configured); err == nil && stat.Mode().IsRegular() {
+			img := canvas.NewImageFromFile(configured)
+			img.ScaleMode = canvas.ImageScaleFastest
+			bg = img
+		}
+	}
+	if bg == nil {
+		b := backgrounds.Default()
+		bg = b.Load(s.Theme(), s.ThemeVariant())
+	}
+
+	c.Objects[0] = bg
+	c.Refresh()
 }
