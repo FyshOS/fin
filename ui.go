@@ -102,13 +102,17 @@ func (u *ui) doLogin() {
 		})
 
 		if err != nil {
-			dialog.ShowError(err, u.gen.win)
+			fyne.Do(func() {
+				dialog.ShowError(err, u.gen.win)
+			})
 			return
 		}
 		proc, err := os.FindProcess(pid)
 		if err != nil {
-			dialog.ShowError(err, u.gen.win)
-			u.gen.win.Show()
+			fyne.Do(func() {
+				dialog.ShowError(err, u.gen.win)
+				u.gen.win.Show()
+			})
 			return
 		}
 
@@ -121,13 +125,17 @@ func (u *ui) doLogin() {
 			_ = os.Chown("/dev/dri/renderD128", uid, -1)
 		}
 
-		u.gen.win.Hide()
+		fyne.Do(func() {
+			u.gen.win.Hide()
+		})
 		_, _ = proc.Wait()
 
-		u.gen.win.Show()
+		fyne.Do(func() {
+			u.gen.win.Show()
+			u.pass.SetText("")
+			u.gen.win.Canvas().Focus(u.pass)
+		})
 		_ = logout()
-		u.pass.SetText("")
-		u.gen.win.Canvas().Focus(u.pass)
 
 		// OpenBSD: give device ownership back to root
 		if runtime.GOOS == "openbsd" {

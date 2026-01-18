@@ -3,3 +3,6 @@
   Name = "Fin"
   ID = "com.fyshos.fin"
   Build = 0
+
+[Migrations]
+  fyneDo = true
