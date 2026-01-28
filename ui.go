@@ -3,6 +3,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"image/color"
@@ -188,14 +189,15 @@ func (u *ui) loadUI() {
 		avatars[i].(*fyne.Container).Objects[0].(*fyne.Container).Objects[1].(*widget.Button).Tapped(&fyne.PointEvent{})
 		matched = true
 	}
-	if matched {
-		u.gen.win.Canvas().Focus(u.pass)
-	}
 
 	fyne.CurrentApp().Settings().AddListener(func(s fyne.Settings) {
 		settingsListener(s, u.gen.bg, u.gen.box)
 	})
 	settingsListener(fyne.CurrentApp().Settings(), u.gen.bg, u.gen.box)
+	if matched {
+		u.gen.win.Canvas().Focus(u.pass)
+		u.updateForUsername(u.user)
+	}
 }
 
 func (u *ui) sessionNames() []string {
@@ -235,6 +237,7 @@ func (u *ui) updateForUsername(user string) {
 	if last != "" {
 		u.session.SetSelected(last)
 	}
+	updateBackground(u.gen.bg, fyne.CurrentApp().Settings(), home)
 }
 
 func boxBackgroundColor(s fyne.Settings) color.Color {
@@ -333,14 +336,31 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 }
 
 func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
-	updateBackground(c, s)
+	updateBackground(c, s, "")
 
 	box.FillColor = boxBackgroundColor(s)
 	box.Refresh()
 }
 
-func updateBackground(c *fyne.Container, s fyne.Settings) {
+func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
 	configured := fyne.CurrentApp().Preferences().String("background")
+
+	if home != "" { // try and get user BG
+		userPath := home + "/.config/fyne/com.fyshos.fynedesk/preferences.json"
+		log.Println(userPath)
+		if f, err := os.Open(userPath); err == nil {
+			var data map[string]interface{}
+			err := json.NewDecoder(f).Decode(&data)
+			if err == nil {
+				if bg, ok := data["background"]; ok {
+					configured = bg.(string)
+				}
+			}
+
+			f.Close()
+		}
+	}
+
 	var bg fyne.CanvasObject
 	if configured != "" {
 		if stat, err := os.Stat(configured); err == nil && stat.Mode().IsRegular() {
