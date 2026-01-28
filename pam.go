@@ -15,6 +15,7 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
 bool logout(void);
 */
 import "C"
+
 import (
 	"errors"
 )

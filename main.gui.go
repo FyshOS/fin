@@ -85,9 +85,11 @@ func (g *gui) makeUI() fyne.CanvasObject {
 								&widget.Button{Text: "Log In", Importance: 1, Icon: theme.LoginIcon(), Alignment: 0, OnTapped: g.loginTapped})),
 						nil,
 						nil,
-						&container.Scroll{Direction: container.ScrollHorizontalOnly,
+						&container.Scroll{
+							Direction: container.ScrollHorizontalOnly,
 							Content: container.NewCenter(
-								g.avatars)})))))
+								g.avatars),
+						})))))
 }
 
 func (g *gui) makeWindow(a fyne.App) fyne.Window {
