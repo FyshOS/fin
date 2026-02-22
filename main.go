@@ -11,6 +11,8 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+
+	"github.com/FyshOS/dryvers"
 )
 
 var askShutdown, doLogin func()
@@ -50,6 +52,8 @@ func main() {
 	w.SetContent(g.makeUI())
 
 	ui := newUI(g, a.Preferences(), getUsers)
+	bright := dryvers.NewBrightness()
+	w.Canvas().SetOnTypedKey(brightnessFunc(bright))
 	askShutdown = func() {
 		ui.askShutdown()
 	}
@@ -73,7 +77,7 @@ func main() {
 	} else {
 		w.Resize(fyne.NewSize(1280, 720))
 	}
-	ui.loadUI()
+	ui.loadUI(bright)
 	w.ShowAndRun()
 
 	if xPID != 0 {

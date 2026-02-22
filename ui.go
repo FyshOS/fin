@@ -25,6 +25,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/FyshOS/backgrounds"
+	"github.com/FyshOS/dryvers"
 	"github.com/jezek/xgb"
 	"github.com/jezek/xgb/randr"
 	"github.com/jezek/xgb/xproto"
@@ -37,7 +38,7 @@ const (
 
 type ui struct {
 	gen     *gui
-	pass    *widget.Entry
+	pass    *finPasswordEntry
 	session *widget.Select
 
 	user     string
@@ -147,8 +148,16 @@ func (u *ui) doLogin() {
 	}()
 }
 
-func (u *ui) loadUI() {
-	u.pass = u.gen.form.Items[0].Widget.(*widget.Entry)
+func (u *ui) loadUI(b *dryvers.Brightness) {
+	keyEntry := newKeyEntry(b)
+	items := u.gen.form.Items
+	u.gen.form.Items = nil
+	u.gen.form.Refresh()
+
+	items[0].Widget = keyEntry
+	u.gen.form.Items = items
+	u.gen.form.Refresh()
+	u.pass = keyEntry
 	u.pass.OnSubmitted = func(string) {
 		u.gen.win.Canvas().Focus(nil)
 		u.doLogin()

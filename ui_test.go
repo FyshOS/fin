@@ -31,7 +31,7 @@ func TestUI(t *testing.T) {
 	g.win = window
 	window.SetContent(g.makeUI())
 	ui := newUI(g, a.Preferences(), oneUser)
-	ui.loadUI()
+	ui.loadUI(nil)
 	window.Resize(fyne.NewSize(370, 475))
 
 	// TODO understand why only the unit test requires this to prop open
@@ -47,7 +47,7 @@ func TestUI_EnterLogin(t *testing.T) {
 	w := test.NewWindow(g.makeUI())
 	g.win = w
 	ui := newUI(g, test.NewApp().Preferences(), emptyUsers)
-	ui.loadUI()
+	ui.loadUI(nil)
 
 	w.Canvas().Focus(ui.pass)
 	ui.pass.TypedKey(&fyne.KeyEvent{Name: fyne.KeyEnter})
@@ -59,7 +59,7 @@ func TestUI_Focus(t *testing.T) {
 	w := test.NewWindow(g.makeUI())
 	g.win = w
 	ui := newUI(g, test.NewApp().Preferences(), emptyUsers)
-	ui.loadUI()
+	ui.loadUI(nil)
 
 	w.Canvas().FocusNext()
 	assert.Equal(t, ui.pass, w.Canvas().Focused())
@@ -67,14 +67,14 @@ func TestUI_Focus(t *testing.T) {
 	w = test.NewWindow(g.makeUI())
 	g.win = w
 	ui = newUI(g, test.NewApp().Preferences(), oneUser)
-	ui.loadUI()
+	ui.loadUI(nil)
 
 	assert.Equal(t, ui.pass, w.Canvas().Focused())
 
 	w = test.NewWindow(g.makeUI())
 	g.win = w
 	ui = newUI(g, test.NewApp().Preferences(), twoUsers)
-	ui.loadUI()
+	ui.loadUI(nil)
 
 	assert.Equal(t, nil, w.Canvas().Focused())
 }
@@ -84,7 +84,7 @@ func TestUI_RequireFields(t *testing.T) {
 	w := test.NewWindow(g.makeUI())
 	g.win = w
 	ui := newUI(g, test.NewApp().Preferences(), emptyUsers)
-	ui.loadUI()
+	ui.loadUI(nil)
 
 	assert.Zero(t, len(w.Canvas().Overlays().List()))
 	ui.doLogin()
