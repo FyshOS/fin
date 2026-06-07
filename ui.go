@@ -200,9 +200,9 @@ func (u *ui) loadUI(b *dryvers.Brightness) {
 	}
 
 	fyne.CurrentApp().Settings().AddListener(func(s fyne.Settings) {
-		settingsListener(s, u.gen.bg, u.gen.box)
+		settingsListener(s, u.gen.bg, u.gen.box, u.currentHome())
 	})
-	settingsListener(fyne.CurrentApp().Settings(), u.gen.bg, u.gen.box)
+	settingsListener(fyne.CurrentApp().Settings(), u.gen.bg, u.gen.box, u.currentHome())
 	if matched {
 		u.gen.win.Canvas().Focus(u.pass)
 		u.updateForUsername(u.user)
@@ -224,6 +224,16 @@ func (u *ui) sessionExec() string {
 		}
 	}
 	return u.sessions[0].exec
+}
+
+// currentHome returns the home directory of the currently selected user, or ""
+// if no user has been chosen yet.
+func (u *ui) currentHome() string {
+	if u.user == "" {
+		return ""
+	}
+	home, _ := homedir(u.user)
+	return home
 }
 
 func (u *ui) updateForUsername(user string) {
@@ -344,8 +354,8 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	)
 }
 
-func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle) {
-	updateBackground(c, s, "")
+func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle, home string) {
+	updateBackground(c, s, home)
 
 	box.FillColor = boxBackgroundColor(s)
 	box.Refresh()
@@ -355,7 +365,7 @@ func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
 	configured := fyne.CurrentApp().Preferences().String("background")
 
 	if home != "" { // try and get user BG
-		userPath := home + "/.config/fyne/com.fyshos.fynedesk/preferences.json"
+		userPath := home + "/.config/fyne/com.fyshos.tyde/preferences.json"
 		log.Println(userPath)
 		if f, err := os.Open(userPath); err == nil {
 			var data map[string]interface{}

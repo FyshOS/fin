@@ -56,7 +56,7 @@ func (g *gui) makeUI() fyne.CanvasObject {
 					&canvas.Rectangle{FillColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeColor: &color.NRGBA{R: 0xc0, G: 0xc0, B: 0xc0, A: 0xff}, StrokeWidth: 2, CornerRadius: 0}),
 				&widget.Label{Text: "user", TextStyle: fyne.TextStyle{Bold: true, Italic: false, Monospace: false, Symbol: false, TabWidth: 0, Underline: false}, Alignment: 1, Wrapping: 0})))
 	g.bg = container.NewStack(
-		canvas.NewImageFromFile("assets/bg-dark.png"))
+		canvas.NewImageFromResource(resourceBgDarkPng))
 
 	return container.NewStack(
 		g.bg,

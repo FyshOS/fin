@@ -12,6 +12,9 @@ var powerSVG []byte
 //go:embed assets/fysh.png
 var fyshPNG []byte
 
+//go:embed assets/bg-dark.png
+var bgDarkPNG []byte
+
 var resourcePowerSvg = &fyne.StaticResource{
 	StaticName:    "power.svg",
 	StaticContent: powerSVG,
@@ -20,4 +23,9 @@ var resourcePowerSvg = &fyne.StaticResource{
 var resourceFyshPng = &fyne.StaticResource{
 	StaticName:    "fysh.png",
 	StaticContent: fyshPNG,
+}
+
+var resourceBgDarkPng = &fyne.StaticResource{
+	StaticName:    "bg-dark.png",
+	StaticContent: bgDarkPNG,
 }
