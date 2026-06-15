@@ -362,7 +362,10 @@ func settingsListener(s fyne.Settings, c *fyne.Container, box *canvas.Rectangle,
 }
 
 func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
-	configured := fyne.CurrentApp().Preferences().String("background")
+	pref := fyne.CurrentApp().Preferences()
+	configured := pref.String("background")
+	fill := pref.StringWithFallback("backgroundfill", "Stretch")
+	colorHex := pref.StringWithFallback("backgroundcolor", "#000000")
 
 	if home != "" { // try and get user BG
 		userPath := home + "/.config/fyne/com.fyshos.tyde/preferences.json"
@@ -371,8 +374,14 @@ func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
 			var data map[string]interface{}
 			err := json.NewDecoder(f).Decode(&data)
 			if err == nil {
-				if bg, ok := data["background"]; ok {
-					configured = bg.(string)
+				if bg, ok := data["background"].(string); ok {
+					configured = bg
+				}
+				if v, ok := data["backgroundfill"].(string); ok {
+					fill = v
+				}
+				if v, ok := data["backgroundcolor"].(string); ok {
+					colorHex = v
 				}
 			}
 
@@ -385,7 +394,10 @@ func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
 		if stat, err := os.Stat(configured); err == nil && stat.Mode().IsRegular() {
 			img := canvas.NewImageFromFile(configured)
 			img.ScaleMode = canvas.ImageScaleFastest
-			bg = img
+			img.FillMode = backgroundFillMode(fill)
+
+			rect := canvas.NewRectangle(parseHexColor(colorHex))
+			bg = container.NewStack(rect, img)
 		}
 	}
 	if bg == nil {
@@ -395,4 +407,39 @@ func updateBackground(c *fyne.Container, s fyne.Settings, home string) {
 
 	c.Objects[0] = bg
 	c.Refresh()
+}
+
+// backgroundFillMode maps a Tyde fill name to a canvas fill mode, matching the
+// "Stretch"/"Fit"/"Fill" options exposed by the Tyde settings screen.
+func backgroundFillMode(name string) canvas.ImageFill {
+	switch name {
+	case "Fit":
+		return canvas.ImageFillContain
+	case "Fill":
+		return canvas.ImageFillCover
+	default: // "Stretch"
+		return canvas.ImageFillStretch
+	}
+}
+
+// parseHexColor turns a "#rrggbb" or "#rrggbbaa" string into a colour,
+// falling back to opaque black for empty or malformed input. This mirrors the
+// background colour stored by Tyde.
+func parseHexColor(hex string) color.NRGBA {
+	c := color.NRGBA{A: 0xff}
+	if len(hex) == 0 || hex[0] != '#' {
+		return c
+	}
+
+	switch len(hex) {
+	case 7: // #rrggbb
+		if _, err := fmt.Sscanf(hex, "#%02x%02x%02x", &c.R, &c.G, &c.B); err != nil {
+			return color.NRGBA{A: 0xff}
+		}
+	case 9: // #rrggbbaa
+		if _, err := fmt.Sscanf(hex, "#%02x%02x%02x%02x", &c.R, &c.G, &c.B, &c.A); err != nil {
+			return color.NRGBA{A: 0xff}
+		}
+	}
+	return c
 }
