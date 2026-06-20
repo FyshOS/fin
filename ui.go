@@ -348,8 +348,10 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	clipper.CornerRadius = theme.InputRadiusSize() * 2
 	negativePad := theme.InputRadiusSize() * -.75
 	img := container.NewStack(bg, tapper, ava, container.New(layout.NewCustomPaddedLayout(
-		negativePad, negativePad, negativePad, negativePad), clipper), border)
-	return container.NewVBox(img,
+		negativePad, negativePad, negativePad, negativePad,
+	), clipper), border)
+	return container.NewVBox(
+		img,
 		widget.NewLabelWithStyle(user, fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
 	)
 }

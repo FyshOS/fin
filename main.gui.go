@@ -47,16 +47,20 @@ func (g *gui) makeUI() fyne.CanvasObject {
 					0,
 					-8,
 					0,
-					0),
+					0,
+				),
 					func() *canvas.Image {
 						img := &canvas.Image{Resource: theme.AccountIcon(), FillMode: canvas.ImageFillContain}
 						img.SetMinSize(fyne.Size{Width: 112, Height: 112})
 						return img
 					}(),
 					&canvas.Rectangle{FillColor: &color.NRGBA{R: 0x0, G: 0x0, B: 0x0, A: 0x0}, StrokeColor: &color.NRGBA{R: 0xc0, G: 0xc0, B: 0xc0, A: 0xff}, StrokeWidth: 2, CornerRadius: 0}),
-				&widget.Label{Text: "user", TextStyle: fyne.TextStyle{Bold: true, Italic: false, Monospace: false, Symbol: false, TabWidth: 0, Underline: false}, Alignment: 1, Wrapping: 0})))
+				&widget.Label{Text: "user", TextStyle: fyne.TextStyle{Bold: true, Italic: false, Monospace: false, Symbol: false, TabWidth: 0, Underline: false}, Alignment: 1, Wrapping: 0},
+			),
+		))
 	g.bg = container.NewStack(
-		canvas.NewImageFromResource(resourceBgDarkPng))
+		canvas.NewImageFromResource(resourceBgDarkPng),
+	)
 
 	return container.NewStack(
 		g.bg,
@@ -68,13 +72,16 @@ func (g *gui) makeUI() fyne.CanvasObject {
 						-368,
 						0,
 						96,
-						96),
-						g.logo)),
+						96,
+					),
+						g.logo),
+				),
 				container.New(layout.NewCustomPaddedLayout(
 					42,
 					42,
 					42,
-					42),
+					42,
+				),
 					container.NewBorder(
 						nil,
 
@@ -82,14 +89,20 @@ func (g *gui) makeUI() fyne.CanvasObject {
 							g.form,
 							container.NewGridWithColumns(2,
 								g.shutdown,
-								&widget.Button{Text: "Log In", Importance: 1, Icon: theme.LoginIcon(), Alignment: 0, OnTapped: g.loginTapped})),
+								&widget.Button{Text: "Log In", Importance: 1, Icon: theme.LoginIcon(), Alignment: 0, OnTapped: g.loginTapped}),
+						),
 						nil,
 						nil,
 						&container.Scroll{
 							Direction: container.ScrollHorizontalOnly,
 							Content: container.NewCenter(
-								g.avatars),
-						})))))
+								g.avatars,
+							),
+						},
+					)),
+			),
+		),
+	)
 }
 
 func (g *gui) makeWindow(a fyne.App) fyne.Window {
