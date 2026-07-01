@@ -15,6 +15,7 @@
 #include <paths.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <grp.h>
 
 #define SERVICE_NAME "fin"
@@ -104,6 +105,42 @@ static void init_env(struct passwd *pw) {
     set_env("MAIL", _PATH_MAILDIR);
     set_env("DISPLAY", ":0");
 
+    // Describe the graphical session to pam_systemd.
+    // XDG_SEAT / XDG_VTNR are only present when fin owns the seat (see main.go);
+    // in nested/embedded runs they are absent and we let logind decide.
+    set_env("XDG_SESSION_TYPE", "x11");
+    set_env("XDG_SESSION_CLASS", "user");
+    char *seat = getenv("XDG_SEAT");
+    if (seat && seat[0] != '\0') {
+        set_env("XDG_SEAT", seat);
+    }
+    char *vtnr = getenv("XDG_VTNR");
+    if (vtnr && vtnr[0] != '\0') {
+        set_env("XDG_VTNR", vtnr);
+    }
+
+    #if !defined(__linux__)
+    // On platforms without logind/pam_systemd nothing hands us a runtime dir,
+    // so create a private per-user one and export XDG_RUNTIME_DIR ourselves.
+    char runtime_dir[64];
+    snprintf(runtime_dir, sizeof(runtime_dir), "/tmp/xdg-%u", (unsigned)pw->pw_uid);
+    struct stat rst;
+    int runtime_ok = 0;
+    if (mkdir(runtime_dir, 0700) == 0) {
+        if (chown(runtime_dir, pw->pw_uid, pw->pw_gid) == 0) {
+            runtime_ok = 1;
+        }
+    } else if (lstat(runtime_dir, &rst) == 0 &&
+               S_ISDIR(rst.st_mode) && rst.st_uid == pw->pw_uid) {
+        // reuse the dir from an earlier login, but only while we still own it
+        chmod(runtime_dir, 0700);
+        runtime_ok = 1;
+    }
+    if (runtime_ok) {
+        set_env("XDG_RUNTIME_DIR", runtime_dir);
+    }
+    #endif
+
     #if defined(__OpenBSD__)
     const char *path_def = "/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:/usr/local/sbin";
     size_t pathv_len = strlen(pw->pw_dir) + strlen(path_def) + 1;
@@ -143,7 +180,6 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
     struct pam_conv pam_conv = {
         conv, data
     };
-    setenv("XDG_SESSION_TYPE", "x11", 1);
 
     int result = pam_start(SERVICE_NAME, username, &pam_conv, &pam_handle);
     if (result != PAM_SUCCESS) {
@@ -176,6 +212,7 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
 
     *child_pid = fork();
     if (*child_pid == 0) {
+        setsid(); // detach from fin's controlling terminal and lead a new session
         change_identity(pw);
         chdir(pw->pw_dir);
         char **env = pam_getenvlist(pam_handle);

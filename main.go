@@ -1,11 +1,13 @@
 package main // import "fyshos.com/fin"
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"os/signal"
 	"runtime"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -14,6 +16,9 @@ import (
 
 	"github.com/FyshOS/dryvers"
 )
+
+// xVTNR is the virtual terminal fin starts the X server on.
+const xVTNR = 5
 
 var askShutdown, doLogin func()
 
@@ -41,6 +46,10 @@ func main() {
 		log.Println("Starting X")
 		xPID = startX()
 		_ = os.Setenv("DISPLAY", ":0")
+
+		// We own the seat/VT, so tell the PAM login (via pam_systemd).
+		_ = os.Setenv("XDG_SEAT", "seat0")
+		_ = os.Setenv("XDG_VTNR", strconv.Itoa(xVTNR))
 	}
 
 	a := app.NewWithID("com.fyshos.fin")
@@ -87,7 +96,7 @@ func main() {
 }
 
 func startX() int {
-	cmd := "X :0 vt05"
+	cmd := fmt.Sprintf("X :0 vt%02d", xVTNR)
 	exe := exec.Command("/bin/sh", "-c", cmd)
 	err := exe.Start()
 	if err != nil {
