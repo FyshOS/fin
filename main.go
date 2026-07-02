@@ -71,18 +71,7 @@ func main() {
 	}
 
 	if display == "" {
-		screenW, screenH := getScreenSize()
-		go func() {
-			tries := 0
-			scale := float32(1.0)
-			for scale == float32(1.0) && tries < 50 {
-				time.Sleep(time.Millisecond * 100) // TODO use lifecycle to resize this at the correct time
-				scale = w.Canvas().Scale()
-				tries++
-			}
-			w.Resize(fyne.NewSize(float32(screenW)/scale, float32(screenH)/scale))
-		}()
-		w.Resize(fyne.NewSize(float32(screenW), float32(screenH)))
+		w.SetFullScreen(true)
 	} else {
 		w.Resize(fyne.NewSize(1280, 720))
 	}

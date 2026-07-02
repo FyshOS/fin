@@ -26,9 +26,6 @@ import (
 
 	"github.com/FyshOS/backgrounds"
 	"github.com/FyshOS/dryvers"
-	"github.com/jezek/xgb"
-	"github.com/jezek/xgb/randr"
-	"github.com/jezek/xgb/xproto"
 )
 
 const (
@@ -128,11 +125,15 @@ func (u *ui) doLogin() {
 		}
 
 		fyne.Do(func() {
+			// Leave fullscreen before hiding. Without a window manager we need to release
+			// the video mode to avoid possible graphical lock.
+			u.gen.win.SetFullScreen(false)
 			u.gen.win.Hide()
 		})
 		_, _ = proc.Wait()
 
 		fyne.Do(func() {
+			u.gen.win.SetFullScreen(true)
 			u.gen.win.Show()
 			u.pass.SetText("")
 			u.gen.win.Canvas().Focus(u.pass)
@@ -266,36 +267,6 @@ func boxBackgroundColor(s fyne.Settings) color.Color {
 		bgCol = color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd}
 	}
 	return bgCol
-}
-
-func getScreenSize() (uint16, uint16) {
-	conn, err := xgb.NewConn()
-	if err != nil {
-		log.Println("ScreenSize X connect error", err)
-		return 1280, 720
-	}
-	err = randr.Init(conn)
-	if err != nil {
-		log.Println("ScreenSize X RandR error", err)
-		return 1280, 720
-	}
-
-	root := xproto.Setup(conn).DefaultScreen(conn).Root
-	resources, _ := randr.GetScreenResources(conn, root).Reply()
-
-	// Get first connected output
-	// TODO: Consider multiple connected outputs in multihead mode
-	var crtcInfo *randr.GetCrtcInfoReply
-	for _, v := range resources.Outputs {
-		output, _ := randr.GetOutputInfo(conn, v, 0).Reply()
-		// 0 = "connected", 1 = "disconnected, 2 = "unknown"
-		if output.Connection == 0 {
-			crtcInfo, _ = randr.GetCrtcInfo(conn, output.Crtc, 0).Reply()
-			break
-		}
-	}
-
-	return crtcInfo.Width, crtcInfo.Height
 }
 
 func getUsers() []string {
