@@ -101,6 +101,7 @@
                           "bottom": "0",
                           "layout": "CustomPadded",
                           "left": "96",
+                          "name": "logoHolder",
                           "right": "96",
                           "top": "-368"
                         }
@@ -316,7 +317,7 @@
                                     "Struct": {
                                       "Hidden": false,
                                       "Text": "Shutdown",
-                                      "Icon": "CancelIcon",
+                                      "Icon": "ContentClearIcon",
                                       "Importance": 0,
                                       "Alignment": 0,
                                       "IconPlacement": 0

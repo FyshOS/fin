@@ -66,7 +66,8 @@ func (g *gui) makeUI() fyne.CanvasObject {
 		-368,
 		0,
 		96,
-		96),
+		96,
+	),
 		g.logo)
 
 	return container.NewStack(
@@ -75,7 +76,8 @@ func (g *gui) makeUI() fyne.CanvasObject {
 			container.NewStack(
 				g.box,
 				container.NewStack(
-					g.logoHolder),
+					g.logoHolder,
+				),
 				container.New(layout.NewCustomPaddedLayout(
 					42,
 					42,
