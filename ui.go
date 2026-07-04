@@ -203,6 +203,13 @@ func (u *ui) loadUI(b *dryvers.Brightness) {
 		u.gen.form.Items = append(u.gen.form.Items,
 			widget.NewFormItem("", fpButton))
 		u.gen.form.Refresh()
+
+		lay := u.gen.logoHolder.Layout.(layout.CustomPaddedLayout)
+		lay.TopPadding -= 48
+		lay.LeftPadding += 24
+		lay.RightPadding += 24
+		u.gen.logoHolder.Layout = lay
+		u.gen.logoHolder.Refresh()
 	}
 
 	users := u.users()

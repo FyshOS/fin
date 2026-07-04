@@ -17,12 +17,13 @@ import (
 type gui struct {
 	win fyne.Window
 
-	box      *canvas.Rectangle
-	form     *widget.Form
-	logo     *canvas.Image
-	shutdown *widget.Button
-	avatars  *fyne.Container
-	bg       *fyne.Container
+	box        *canvas.Rectangle
+	form       *widget.Form
+	logo       *canvas.Image
+	shutdown   *widget.Button
+	avatars    *fyne.Container
+	bg         *fyne.Container
+	logoHolder *fyne.Container
 }
 
 func newGUI() *gui {
@@ -61,6 +62,12 @@ func (g *gui) makeUI() fyne.CanvasObject {
 	g.bg = container.NewStack(
 		canvas.NewImageFromResource(resourceBgDarkPng),
 	)
+	g.logoHolder = container.New(layout.NewCustomPaddedLayout(
+		-368,
+		0,
+		96,
+		96),
+		g.logo)
 
 	return container.NewStack(
 		g.bg,
@@ -68,14 +75,7 @@ func (g *gui) makeUI() fyne.CanvasObject {
 			container.NewStack(
 				g.box,
 				container.NewStack(
-					container.New(layout.NewCustomPaddedLayout(
-						-368,
-						0,
-						96,
-						96,
-					),
-						g.logo),
-				),
+					g.logoHolder),
 				container.New(layout.NewCustomPaddedLayout(
 					42,
 					42,
