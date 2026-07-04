@@ -12,6 +12,7 @@ package main
 
 char *homedir(const char *username);
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid);
+bool loginFingerprint(const char *username, const char *exec, pid_t *child_pid);
 bool logout(void);
 */
 import "C"
@@ -42,6 +43,21 @@ func login(username, password, exec string) (int, error) {
 	ok := bool(C.login(cUser, cPass, cExec, &child))
 	if !ok {
 		return 0, errors.New("could not log in user")
+	}
+	return int(child), nil
+}
+
+// loginFingerprint logs the user in by fingerprint (no password) via pam_fprintd
+// and returns the pid of the session process, or an error if authentication
+// failed. It blocks until a finger is presented or the scan times out.
+func loginFingerprint(username, exec string) (int, error) {
+	cUser := C.CString(username)
+	cExec := C.CString("exec " + exec)
+
+	var child C.pid_t
+	ok := bool(C.loginFingerprint(cUser, cExec, &child))
+	if !ok {
+		return 0, errors.New("fingerprint not recognised")
 	}
 	return int(child), nil
 }

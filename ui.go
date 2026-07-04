@@ -81,6 +81,31 @@ func (u *ui) doLogin() {
 		dialog.ShowError(errors.New("missing username or password"), u.gen.win)
 		return
 	}
+
+	pass := u.pass.Text
+	u.startSession(func() (int, error) {
+		return login(u.user, pass, u.sessionExec())
+	})
+}
+
+// doFingerprintLogin logs the selected user in with their fingerprint instead of
+// a password. pam_fprintd (service fin-fingerprint) blocks until a finger is
+// presented; it requires fingerprint login to be enabled in Account settings.
+func (u *ui) doFingerprintLogin() {
+	if u.user == "" {
+		dialog.ShowError(errors.New("please choose a user first"), u.gen.win)
+		return
+	}
+
+	u.startSession(func() (int, error) {
+		return loginFingerprint(u.user, u.sessionExec())
+	})
+}
+
+// startSession stores the session preference then authenticates and launches the
+// user's session on a background goroutine, showing a spinner while it runs. The
+// authenticate callback performs the credential check (password or fingerprint).
+func (u *ui) startSession(authenticate func() (int, error)) {
 	u.pref.SetString(fmt.Sprintf(prefSessionKey, u.user), u.session.Selected)
 	u.pref.SetString(prefUserKey, u.user)
 
@@ -93,7 +118,7 @@ func (u *ui) doLogin() {
 	d.Show()
 
 	go func() {
-		pid, err := login(u.user, u.pass.Text, u.sessionExec())
+		pid, err := authenticate()
 
 		fyne.Do(func() {
 			d.Hide()
@@ -165,6 +190,20 @@ func (u *ui) loadUI(b *dryvers.Brightness) {
 	}
 	u.session = u.gen.form.Items[1].Widget.(*widget.Select)
 	u.session.Options = u.sessionNames()
+
+	// Offer fingerprint login when it has been enabled in Account settings
+	// (the dedicated PAM service is present). Swiping is an explicit action so
+	// it never competes with a password login for the shared PAM handle.
+	if _, err := os.Stat("/etc/pam.d/fin-fingerprint"); err == nil {
+		fpButton := widget.NewButtonWithIcon("Log in with fingerprint",
+			theme.LoginIcon(), func() {
+				u.gen.win.Canvas().Focus(nil)
+				u.doFingerprintLogin()
+			})
+		u.gen.form.Items = append(u.gen.form.Items,
+			widget.NewFormItem("", fpButton))
+		u.gen.form.Refresh()
+	}
 
 	users := u.users()
 	u.gen.shutdown.SetIcon(theme.NewThemedResource(resourcePowerSvg))

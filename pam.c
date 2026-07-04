@@ -175,6 +175,72 @@ char *homedir(const char *username) {
     return pw->pw_dir;
 }
 
+#define FINGERPRINT_SERVICE_NAME "fin-fingerprint"
+
+// fconv handles fingerprint authentication via pam_fprintd, which only emits
+// informational messages ("Swipe your finger...") and needs no input from us.
+static int fconv(int num_msg, const struct pam_message **msg,
+        struct pam_response **resp, void *appdata_ptr) {
+    (void)msg;
+    (void)appdata_ptr;
+    *resp = calloc(num_msg, sizeof(struct pam_response));
+    if (*resp == NULL) {
+        return PAM_BUF_ERR;
+    }
+    return PAM_SUCCESS;
+}
+
+// perform_login runs the shared post-authentication session setup and launches
+// the user's session. pam_handle must already be started and pam_authenticate
+// must have succeeded; it is used by both password and fingerprint login.
+static bool perform_login(const char *username, const char *exec, pid_t *child_pid) {
+    int result;
+
+    result = pam_acct_mgmt(pam_handle, 0);
+    if (result != PAM_SUCCESS) {
+        err("pam_acct_mgmt");
+    }
+
+    struct passwd *pw = getpwnam(username);
+    init_env(pw);
+
+    // Fork BEFORE opening the PAM session as pam_systemd records the process that
+    // calls pam_open_session as the logind session leader.
+    *child_pid = fork();
+    if (*child_pid < 0) {
+        err("fork");
+    }
+    if (*child_pid == 0) {
+        setsid(); // become a session leader before logind registers us
+
+        result = pam_setcred(pam_handle, PAM_ESTABLISH_CRED);
+        if (result != PAM_SUCCESS) {
+            fprintf(stderr, "pam_setcred: %s\n",
+                    pam_strerror(pam_handle, result));
+            _Exit(1);
+        }
+
+        result = pam_open_session(pam_handle, 0);
+        if (result != PAM_SUCCESS) {
+            fprintf(stderr, "pam_open_session: %s\n",
+                    pam_strerror(pam_handle, result));
+            pam_setcred(pam_handle, PAM_DELETE_CRED);
+            _Exit(1);
+        }
+
+        change_identity(pw);
+        chdir(pw->pw_dir);
+        char **env = pam_getenvlist(pam_handle);
+        execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
+        printf("Failed to start window manager");
+        _Exit(1);
+    }
+
+    return true;
+}
+
+
+
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid) {
     const char *data[2] = {username, password};
     struct pam_conv pam_conv = {
@@ -191,40 +257,29 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
         err("pam_authenticate");
     }
 
-    result = pam_acct_mgmt(pam_handle, 0);
-    if (result != PAM_SUCCESS) {
-        err("pam_acct_mgmt");
-    }
-
-    result = pam_setcred(pam_handle, PAM_ESTABLISH_CRED);
-    if (result != PAM_SUCCESS) {
-        err("pam_setcred");
-    }
-
-    struct passwd *pw = getpwnam(username);
-    init_env(pw);
-
-    result = pam_open_session(pam_handle, 0);
-    if (result != PAM_SUCCESS) {
-        pam_setcred(pam_handle, PAM_DELETE_CRED);
-        err("pam_open_session");
-    }
-
-    *child_pid = fork();
-    if (*child_pid == 0) {
-        setsid(); // detach from fin's controlling terminal and lead a new session
-        change_identity(pw);
-        chdir(pw->pw_dir);
-        char **env = pam_getenvlist(pam_handle);
-        execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
-        printf("Failed to start window manager");
-        _Exit(1);
-    }
-
-    return true;
+    return perform_login(username, exec, child_pid);
 }
 
+// loginFingerprint authenticates via pam_fprintd (service fin-fingerprint) and,
+// on a matching finger, opens the session exactly as password login does. It
+// blocks in pam_authenticate until a finger is presented or the scan times out.
+bool loginFingerprint(const char *username, const char *exec, pid_t *child_pid) {
+    struct pam_conv pam_conv = {
+        fconv, NULL
+    };
 
+    int result = pam_start(FINGERPRINT_SERVICE_NAME, username, &pam_conv, &pam_handle);
+    if (result != PAM_SUCCESS) {
+        err("pam_start");
+    }
+
+    result = pam_authenticate(pam_handle, 0);
+    if (result != PAM_SUCCESS) {
+        err("pam_authenticate");
+    }
+
+    return perform_login(username, exec, child_pid);
+}
 
 bool logout(void) {
     int result = pam_close_session(pam_handle, 0);
