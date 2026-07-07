@@ -38,3 +38,18 @@ jobs:
       with:
         path-to-profile: coverage.out
       if: ${{ runner.os == 'Linux' && matrix.go-version == '1.19' && github.event_name == 'push' }}
+
+  bsd_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Tests
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        prepare: |
+          pkg install -y go pkgconf libX11 libXcursor libXrandr libXinerama libGL libxkbcommon
+        run: |
+          go test -tags ci ./...
