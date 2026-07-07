@@ -50,6 +50,6 @@ jobs:
       with:
         usesh: true
         prepare: |
-          pkg install -y go pkgconf libX11 libXcursor libXrandr libXinerama libGL libxkbcommon
+          pkg install -y go pkgconf libX11 libXcursor libXrandr libXinerama mesa-libs libxkbcommon
         run: |
           go test -tags ci ./...
