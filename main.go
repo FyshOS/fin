@@ -53,12 +53,8 @@ func main() {
 	}
 
 	a := app.NewWithID("com.fyshos.fin")
-	w := a.NewWindow("Fin")
 	g := newGUI()
-	g.win = w
-	w.Resize(fyne.NewSize(771, 476))
-	w.SetPadded(false)
-	w.SetContent(g.makeUI())
+	w := g.makeWindow(a)
 
 	ui := newUI(g, a.Preferences(), getUsers)
 	bright := dryvers.NewBrightness()

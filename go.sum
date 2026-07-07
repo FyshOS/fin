@@ -51,8 +51,8 @@ github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/FyshOS/backgrounds v0.1.0 h1:4VnM1UPFaB1TEWPn0Lfd5xvXoIbECmrNVbzFc0eo/SQ=
 github.com/FyshOS/backgrounds v0.1.0/go.mod h1:kKw27b5wnA9VRNamXgHT7RrAQa3niyX4DKO18aR7yII=
-github.com/FyshOS/dryvers v0.0.0-20260222162433-1ffb8226c1cf h1:XLe1tSmPdH5qMQYs3JVVa3xRBAS4T21CT2cxLtoKYBw=
-github.com/FyshOS/dryvers v0.0.0-20260222162433-1ffb8226c1cf/go.mod h1:mBhkO+pDidzkggexaxk+49sfbWql9sePaNNUeQtspmw=
+github.com/FyshOS/dryvers v0.0.0-20260707124411-e0d49db443fb h1:6lM+9DlLSjGZ8Mz2B0bYngpeBE477rESikwZ3vP+zjQ=
+github.com/FyshOS/dryvers v0.0.0-20260707124411-e0d49db443fb/go.mod h1:mBhkO+pDidzkggexaxk+49sfbWql9sePaNNUeQtspmw=
 github.com/FyshOS/fancyfs v0.0.0-20251025194026-1f03098ff624 h1:ryzrudl71BPWW9jalH/6qSXOmj/B96lunzJEi6zuuR4=
 github.com/FyshOS/fancyfs v0.0.0-20251025194026-1f03098ff624/go.mod h1:oLKntpN0BPY75aajV735V/14CnSF/GEHCa6mKNDhOjw=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=

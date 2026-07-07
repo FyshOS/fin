@@ -221,7 +221,7 @@ func (u *ui) loadUI(b *dryvers.Brightness) {
 		ava := newAvatar(name, func(user string) {
 			for _, a := range avatars {
 				border := a.(*fyne.Container).Objects[0].(*fyne.Container).Objects[4].(*canvas.Rectangle)
-				border.StrokeColor = theme.ShadowColor()
+				border.StrokeColor = theme.Color(theme.ColorNameShadow)
 				border.Refresh()
 			}
 			u.user = user
@@ -309,7 +309,7 @@ func (u *ui) updateForUsername(user string) {
 func boxBackgroundColor(s fyne.Settings) color.Color {
 	bgCol := s.Theme().Color("fynedeskPanelBackground", s.ThemeVariant())
 	if bgCol == nil || bgCol == color.Transparent {
-		r, g, b, _ := theme.BackgroundColor().RGBA()
+		r, g, b, _ := theme.Color(theme.ColorNameBackground).RGBA()
 		bgCol = color.NRGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 0xdd}
 	}
 	return bgCol
@@ -348,20 +348,20 @@ func newAvatar(user string, f func(string)) fyne.CanvasObject {
 	border := canvas.NewRectangle(color.Transparent)
 	border.CornerRadius = theme.InputRadiusSize()
 	border.StrokeWidth = theme.InputBorderSize()
-	border.StrokeColor = theme.ShadowColor()
+	border.StrokeColor = theme.Color(theme.ColorNameShadow)
 
 	tapper := widget.NewButton("", func() {
 		f(user)
-		border.StrokeColor = theme.PrimaryColor()
+		border.StrokeColor = theme.Color(theme.ColorNamePrimary)
 		border.Refresh()
 	})
 	tapper.Importance = widget.LowImportance
 
-	bg := canvas.NewRectangle(theme.ButtonColor())
+	bg := canvas.NewRectangle(theme.Color(theme.ColorNameButton))
 	bg.CornerRadius = theme.InputRadiusSize()
 	clipper := canvas.NewRectangle(color.Transparent)
 	clipper.StrokeWidth = theme.InputRadiusSize() * 1.25
-	clipper.StrokeColor = theme.OverlayBackgroundColor()
+	clipper.StrokeColor = theme.Color(theme.ColorNameOverlayBackground)
 	clipper.CornerRadius = theme.InputRadiusSize() * 2
 	negativePad := theme.InputRadiusSize() * -.75
 	img := container.NewStack(bg, tapper, ava, container.New(layout.NewCustomPaddedLayout(
