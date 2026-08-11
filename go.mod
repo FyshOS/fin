@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	fyne.io/fyne/v2 v2.8.0
-	github.com/FyshOS/backgrounds v0.1.1-0.20260707130320-3396801e96b9
+	github.com/FyshOS/backgrounds v0.1.1-0.20260808235716-a384bdf00565
 	github.com/FyshOS/dryvers v0.0.0-20260707124411-e0d49db443fb
 	github.com/stretchr/testify v1.11.1
 )
