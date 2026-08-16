@@ -17,8 +17,11 @@ import (
 	"github.com/FyshOS/dryvers"
 )
 
-// xVTNR is the virtual terminal fin starts the X server on.
+// xVTNR is the virtual terminal fin starts the X server on when there is no
+// boot splash to take over from.
 const xVTNR = 5
+
+const splashHandoverTimeout = 10 * time.Second
 
 var askShutdown, doLogin func()
 
@@ -32,6 +35,7 @@ func main() {
 	log.Println("Fin started")
 
 	var xPID int
+	splash := newPlymouth()
 	display := os.Getenv("DISPLAY")
 	if display == "" {
 		sig := make(chan os.Signal, 1)
@@ -39,20 +43,37 @@ func main() {
 		go func() {
 			for {
 				<-sig
+				splash.finish(false)
 				stopX(xPID)
 			}
 		}()
 
-		log.Println("Starting X")
-		xPID = startX()
+		// Take over the VT the splash is on, if plymouth running.
+		vt := xVTNR
+		if splashVT, ok := splash.vt(); ok {
+			vt = splashVT
+		}
+		splash.deactivate()
+
+		log.Println("Starting X on vt", vt)
+		xPID = startX(vt, splash)
 		_ = os.Setenv("DISPLAY", ":0")
 
 		// We own the seat/VT, so tell the PAM login (via pam_systemd).
 		_ = os.Setenv("XDG_SEAT", "seat0")
-		_ = os.Setenv("XDG_VTNR", strconv.Itoa(xVTNR))
+		_ = os.Setenv("XDG_VTNR", strconv.Itoa(vt))
 	}
 
 	a := app.NewWithID("com.fyshos.fin")
+
+	// Hand over once the greeter is actually on screen.
+	a.Lifecycle().SetOnEnteredForeground(func() {
+		splash.finish(true)
+	})
+	time.AfterFunc(splashHandoverTimeout, func() {
+		splash.finish(true)
+	})
+
 	g := newGUI()
 	w := g.makeWindow(a)
 
@@ -74,17 +95,24 @@ func main() {
 	ui.loadUI(bright)
 	w.ShowAndRun()
 
+	// fallback to clear the screen if we didn't succeeed in taking over screen.
+	splash.finish(false)
+
 	if xPID != 0 {
 		log.Println("Stopping X")
 		stopX(xPID)
 	}
 }
 
-func startX() int {
-	cmd := fmt.Sprintf("X :0 vt%02d", xVTNR)
+func startX(vt int, splash *plymouth) int {
+	cmd := fmt.Sprintf("X :0 vt%02d", vt)
 	exe := exec.Command("/bin/sh", "-c", cmd)
 	err := exe.Start()
 	if err != nil {
+		// Drop the splash without retaining it, so the console comes back and
+		// the failure is not hidden behind a frozen boot image.
+		splash.finish(false)
+
 		fyne.LogError("Could not start X server", err)
 		os.Exit(1)
 	}

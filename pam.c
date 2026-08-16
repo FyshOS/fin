@@ -16,6 +16,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
 #include <grp.h>
 
 #define SERVICE_NAME "fin"
@@ -29,6 +32,16 @@
     } while (1);                                    \
 
 static pam_handle_t *pam_handle;
+
+// reset_signals puts the signal dispositions back to their defaults.
+static void reset_signals(void) {
+    signal(SIGTERM, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGHUP, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    signal(SIGCHLD, SIG_DFL);
+    signal(SIGPIPE, SIG_DFL);
+}
 
 static void change_identity (struct passwd *pw) {
     if (initgroups(pw->pw_name, pw->pw_gid) == -1)
@@ -205,13 +218,15 @@ static bool perform_login(const char *username, const char *exec, pid_t *child_p
     init_env(pw);
 
     // Fork BEFORE opening the PAM session as pam_systemd records the process that
-    // calls pam_open_session as the logind session leader.
+    // calls pam_open_session as the logind session leader -- that must be the
+    // session, not fin itself.
     *child_pid = fork();
     if (*child_pid < 0) {
         err("fork");
     }
     if (*child_pid == 0) {
         setsid(); // become a session leader before logind registers us
+        reset_signals();
 
         result = pam_setcred(pam_handle, PAM_ESTABLISH_CRED);
         if (result != PAM_SUCCESS) {
@@ -228,12 +243,29 @@ static bool perform_login(const char *username, const char *exec, pid_t *child_p
             _Exit(1);
         }
 
-        change_identity(pw);
-        chdir(pw->pw_dir);
-        char **env = pam_getenvlist(pam_handle);
-        execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
-        printf("Failed to start window manager");
-        _Exit(1);
+        pid_t session_pid = fork();
+        if (session_pid < 0) {
+            fprintf(stderr, "fork: could not start session\n");
+            pam_close_session(pam_handle, 0);
+            pam_setcred(pam_handle, PAM_DELETE_CRED);
+            _Exit(1);
+        }
+        if (session_pid == 0) {
+            change_identity(pw);
+            chdir(pw->pw_dir);
+            char **env = pam_getenvlist(pam_handle);
+            execle(pw->pw_shell, pw->pw_shell, "-c", exec, NULL, env);
+            printf("Failed to start window manager");
+            _Exit(1);
+        }
+
+        while (waitpid(session_pid, NULL, 0) < 0 && errno == EINTR) {
+            // a signal interrupted the wait, the session is still running
+        }
+
+        pam_close_session(pam_handle, 0);
+        pam_setcred(pam_handle, PAM_DELETE_CRED);
+        _Exit(0);
     }
 
     return true;
@@ -281,6 +313,9 @@ bool loginFingerprint(const char *username, const char *exec, pid_t *child_pid) 
     return perform_login(username, exec, child_pid);
 }
 
+// logout tears down fin's side of the PAM handle once the session process has
+// exited. The logind session itself was already closed by the child that held
+// it open (see perform_login), this releases what the greeter still holds.
 bool logout(void) {
     int result = pam_close_session(pam_handle, 0);
     if (result != PAM_SUCCESS) {

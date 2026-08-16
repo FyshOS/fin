@@ -1,6 +1,16 @@
 [Unit]
 Description=Fin Login Manager
-After=systemd-user-sessions.target
+After=systemd-user-sessions.service
+
+# fin drives the plymouth handoff itself: deactivate before starting X, then
+# "quit --retain-splash" once the greeter is drawn.
+Conflicts=plymouth-quit.service
+After=plymouth-quit.service
+
+# With a splash to take over from, fin claims plymouth's VT rather than its own
+# tty5, and that is normally tty1.
+Conflicts=getty@tty1.service
+After=getty@tty1.service
 
 [Service]
 ExecStart=fin
