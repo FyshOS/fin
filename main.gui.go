@@ -36,7 +36,7 @@ func (g *gui) makeUI() fyne.CanvasObject {
 		&widget.Entry{Text: "", PlaceHolder: "", MultiLine: false, Password: true}), widget.NewFormItem("Session",
 		widget.NewSelect([]string{"Option 1", "Option 2"}, func(s string) {}))}}
 	g.logo = func() *canvas.Image {
-		img := &canvas.Image{File: "/home/andy/Code/FyshOS/fin/assets/fysh.png", FillMode: canvas.ImageFillContain}
+		img := &canvas.Image{File: "assets/fysh.png", FillMode: canvas.ImageFillContain}
 		img.SetMinSize(fyne.Size{Width: 82, Height: 82})
 		return img
 	}()

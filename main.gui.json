@@ -84,7 +84,7 @@
                             "Name": "logo",
                             "Struct": {
                               "Hidden": false,
-                              "File": "/home/andy/Code/FyshOS/fin/assets/fysh.png",
+                              "File": "assets/fysh.png",
                               "Resource": null,
                               "Image": null,
                               "Translucency": 0,
