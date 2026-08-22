@@ -7,15 +7,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go-version: ['1.19', '1.23']
+        go-version: ["", "stable"]
         os: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
-      id: setup-go-faster
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
       with:
         go-version: ${{ matrix.go-version }}
+        go-version-file: ${{ matrix.go-version == '' && 'go.mod' || '' }}
 
     - name: Get dependencies
       run: sudo apt-get update && sudo apt-get install gcc libgl1-mesa-dev libegl1-mesa-dev libgles2-mesa-dev libx11-dev xorg-dev libpam-dev bc
