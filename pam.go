@@ -14,6 +14,7 @@ char *homedir(const char *username);
 bool login(const char *username, const char *password, const char *exec, pid_t *child_pid);
 bool loginFingerprint(const char *username, const char *exec, pid_t *child_pid);
 bool logout(void);
+const char *lastError(void);
 */
 import "C"
 
@@ -42,7 +43,7 @@ func login(username, password, exec string) (int, error) {
 	var child C.pid_t
 	ok := bool(C.login(cUser, cPass, cExec, &child))
 	if !ok {
-		return 0, errors.New("could not log in user")
+		return 0, pamError("could not log in user")
 	}
 	return int(child), nil
 }
@@ -57,9 +58,17 @@ func loginFingerprint(username, exec string) (int, error) {
 	var child C.pid_t
 	ok := bool(C.loginFingerprint(cUser, cExec, &child))
 	if !ok {
-		return 0, errors.New("fingerprint not recognised")
+		return 0, pamError("fingerprint not recognised")
 	}
 	return int(child), nil
+}
+
+// pamError reports why the last PAM call failed, returning falling if no error was reported.
+func pamError(fallback string) error {
+	if reason := C.GoString(C.lastError()); reason != "" {
+		return errors.New(reason)
+	}
+	return errors.New(fallback)
 }
 
 // logout requests the user log out and returns an error if this was not possible

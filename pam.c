@@ -25,6 +25,7 @@
 
 #define err(name)                                   \
     do {                                            \
+        record_error(name, result);                 \
         fprintf(stderr, "%s: %s\n", name,           \
                 pam_strerror(pam_handle, result));  \
         end(result);                                \
@@ -32,6 +33,19 @@
     } while (1);                                    \
 
 static pam_handle_t *pam_handle;
+
+// last_error keeps the reason the most recent login attempt failed.
+static char last_error[256];
+
+static void record_error(const char *stage, int result) {
+    snprintf(last_error, sizeof(last_error), "%s: %s", stage,
+             pam_strerror(pam_handle, result));
+}
+
+// lastError returns the reason recorded by the last failed login, or "" if no error.
+const char *lastError(void) {
+    return last_error;
+}
 
 // reset_signals puts the signal dispositions back to their defaults.
 static void reset_signals(void) {
@@ -278,6 +292,7 @@ bool login(const char *username, const char *password, const char *exec, pid_t *
     struct pam_conv pam_conv = {
         conv, data
     };
+    last_error[0] = '\0';
 
     int result = pam_start(SERVICE_NAME, username, &pam_conv, &pam_handle);
     if (result != PAM_SUCCESS) {
@@ -299,6 +314,7 @@ bool loginFingerprint(const char *username, const char *exec, pid_t *child_pid) 
     struct pam_conv pam_conv = {
         fconv, NULL
     };
+    last_error[0] = '\0';
 
     int result = pam_start(FINGERPRINT_SERVICE_NAME, username, &pam_conv, &pam_handle);
     if (result != PAM_SUCCESS) {
