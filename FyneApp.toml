@@ -2,7 +2,8 @@
   Icon = "Icon.png"
   Name = "Fin"
   ID = "com.fyshos.fin"
-  Build = 0
+  Version = "0.1.0"
+  Build = 4
 
 [Migrations]
   fyneDo = true
