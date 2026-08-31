@@ -19,3 +19,26 @@ uninstall:
 embed:
 	DISPLAY=:0 Xephyr :1 -screen 1280x720 &
 	DISPLAY=:1 go run .
+
+# === FyshOS packagin ==========================================================
+DEB_VERSION     ?=
+DEB_NAME        ?= fin
+DEB_SECTION     ?= x11
+DEB_DESCRIPTION ?= FyshOS login manager
+DEB_HOMEPAGE    ?= https://fyshos.com
+DEB_SUDO        ?= -sudo
+DEB_BUILD_DEPS  ?= libpam0g-dev libgl1-mesa-dev xorg-dev libwayland-dev \
+                   libxkbcommon-dev
+
+repo:
+	fyshpkg make \
+		-name "$(DEB_NAME)" \
+		$(if $(DEB_VERSION),-version "$(DEB_VERSION)") \
+		-section "$(DEB_SECTION)" \
+		-description "$(DEB_DESCRIPTION)" \
+		-homepage "$(DEB_HOMEPAGE)" \
+		-build-deps "$(DEB_BUILD_DEPS)" \
+		$(DEB_SUDO) $(FYSHPKG_FLAGS) \
+		.
+
+.PHONY: build install uninstall embed repo
